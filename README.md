@@ -1,4 +1,4 @@
-# 自律打卡
+# SUC（原「自律打卡」）
 
 一套代码，两个平台：
 - **iPhone**：PWA（网页应用），Safari 打开 GitHub Pages 网址 → 添加到主屏幕
@@ -33,7 +33,7 @@
 推送到 main 后，`.github/workflows/android.yml` 会：`npm ci` → `scripts/build-www.mjs`（把网页和 Capacitor 脚本打包进 `www/`）→ `npx cap add android` → 覆盖 `android-res/` 里的图标和启动图 → `gradlew assembleRelease` → 用 `android-signing/zilv.jks` 签名 → 发布到 Releases。
 - 版本号 = Actions 运行编号，App 内「我的」会提示新版本，覆盖安装数据不丢
 - 签名密钥放在仓库里是为了免配置；如需更安全，可在仓库 Secrets 里设置 `ANDROID_KEYSTORE_B64` 和 `ANDROID_KEYSTORE_PASS`（会优先使用）。注意换密钥后需要卸载重装
-- 图标资源：`python3 scripts/make_android_res.py`
+- 图标：原图放在 `icons/icon-source.png`，运行 `python3 make_icons.py` 生成 iPhone / 安卓全套图标和安卓启动图
 
 ## 数据升级
 旧版（只有戒色）的数据存在 `nofap-pwa-v1`，新版首次打开会自动迁移为一个“戒色”项目，写入 `zilv-v2`；旧数据原样保留不删。导入时兼容新旧两种备份文件。
@@ -50,6 +50,6 @@ python3 -m http.server 8000
 - `index.html` 应用全部界面与逻辑
 - `manifest.webmanifest` PWA 配置
 - `sw.js` 离线缓存（修改文件后把 `CACHE` 版本号 +1，用户端才会更新）
-- `icons/` 图标；`make_icons.py` 可重新生成图标
+- `icons/` 图标（`icon-source.png` 为原图）；`make_icons.py` 重新生成全部图标
 - `google-drive/Code.gs` 账号与同步服务器（Google Apps Script）
 - `capacitor.config.json`、`package.json`、`scripts/`、`android-res/`、`android-signing/`、`.github/workflows/` 安卓打包相关

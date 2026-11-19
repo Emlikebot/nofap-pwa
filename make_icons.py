@@ -1,39 +1,90 @@
-"""生成应用图标：python3 make_icons.py"""
+"""用 icons/icon-source.png（红底签名）生成全部图标：python3 make_icons.py
+PWA 图标写到 icons/，安卓资源写到 android-res/（CI 会覆盖到安卓工程里）。"""
 from PIL import Image, ImageDraw
 import os
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons")
-os.makedirs(OUT, exist_ok=True)
+ROOT = os.path.dirname(os.path.abspath(__file__))
+SRC = Image.open(os.path.join(ROOT, "icons", "icon-source.png")).convert("RGB")
+RED = SRC.getpixel((40, 40))           # 背景红
+DARK = (15, 17, 21)                    # App 主题深色
 
 
-def icon(size, pad_ratio=0.0):
-    S = size * 4  # supersample
-    img = Image.new("RGB", (S, S), (15, 17, 21))
-    d = ImageDraw.Draw(img)
-    # 背景渐变
-    for y in range(S):
-        t = y / S
-        c = (int(16 + 10 * t), int(22 + 8 * t), int(28 + 6 * t))
-        d.line([(0, y), (S, y)], fill=c)
-    inset = S * (0.18 + pad_ratio)
-    w = S * 0.075
-    box = [inset, inset, S - inset, S - inset]
-    # 背景环
-    d.arc(box, 0, 360, fill=(40, 46, 58), width=int(w))
-    # 进度环
-    d.arc(box, -90, 200, fill=(52, 211, 153), width=int(w))
-    # 对勾
-    cx, cy, r = S / 2, S / 2, (S - 2 * inset) / 2
-    pts = [(cx - r * 0.42, cy + r * 0.02), (cx - r * 0.1, cy + r * 0.34), (cx + r * 0.45, cy - r * 0.3)]
-    d.line(pts, fill=(238, 240, 244), width=int(w * 1.05), joint="curve")
-    for p in (pts[0], pts[2]):
-        rr = w * 0.52
-        d.ellipse([p[0] - rr, p[1] - rr, p[0] + rr, p[1] + rr], fill=(238, 240, 244))
-    return img.resize((size, size), Image.LANCZOS)
+def signature():
+    """从原图抠出签名笔画（透明背景），裁到笔画范围。"""
+    w, h = SRC.size
+    a = Image.new("L", (w, h))
+    pa, ps = a.load(), SRC.load()
+    for y in range(h):
+        for x in range(w):
+            r = ps[x, y][0]
+            pa[x, y] = max(0, min(255, int((RED[0] - r) * 255 / (RED[0] - 15))))
+    lay = Image.new("RGBA", (w, h), (10, 6, 6, 0))
+    lay.putalpha(a)
+    return lay.crop(lay.getbbox())
 
 
-icon(180).save(os.path.join(OUT, "apple-touch-icon.png"))
-icon(192).save(os.path.join(OUT, "icon-192.png"))
-icon(512).save(os.path.join(OUT, "icon-512.png"))
-icon(512, pad_ratio=0.08).save(os.path.join(OUT, "icon-512-maskable.png"))
-print("icons written to", OUT)
+SIG = signature()
+
+
+def on_red(size, width_ratio, bg=RED, alpha=255):
+    """红底（或透明底）+ 居中签名，签名宽度占 width_ratio。"""
+    S = size * 2
+    c = Image.new("RGBA", (S, S), bg + (alpha,))
+    w = int(S * width_ratio)
+    s = SIG.resize((w, int(w * SIG.height / SIG.width)), Image.LANCZOS)
+    c.alpha_composite(s, ((S - s.width) // 2, (S - s.height) // 2))
+    return c.resize((size, size), Image.LANCZOS)
+
+
+def full(size):
+    return on_red(size, 0.84)
+
+
+def masked(img, kind):
+    S = img.width * 4
+    m = Image.new("L", (S, S), 0)
+    d = ImageDraw.Draw(m)
+    if kind == "round":
+        d.ellipse([0, 0, S, S], fill=255)
+    else:
+        d.rounded_rectangle([0, 0, S, S], radius=int(S * 0.2), fill=255)
+    m = m.resize(img.size, Image.LANCZOS)
+    out = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    out.paste(img, (0, 0), m)
+    return out
+
+
+# ---------- PWA / iPhone ----------
+icons = os.path.join(ROOT, "icons")
+full(180).convert("RGB").save(os.path.join(icons, "apple-touch-icon.png"))
+full(192).convert("RGB").save(os.path.join(icons, "icon-192.png"))
+full(512).convert("RGB").save(os.path.join(icons, "icon-512.png"))
+on_red(512, 0.70).convert("RGB").save(os.path.join(icons, "icon-512-maskable.png"))   # 安全区 80% 圆内
+
+# ---------- 安卓 ----------
+OUT = os.path.join(ROOT, "android-res")
+dens = {"mdpi": 1, "hdpi": 1.5, "xhdpi": 2, "xxhdpi": 3, "xxxhdpi": 4}
+for name, k in dens.items():
+    d = os.path.join(OUT, f"mipmap-{name}")
+    os.makedirs(d, exist_ok=True)
+    masked(full(int(48 * k)), "rr").save(os.path.join(d, "ic_launcher.png"))
+    masked(full(int(48 * k)), "round").save(os.path.join(d, "ic_launcher_round.png"))
+    # 自适应图标前景：108dp 画布，签名放在中间 66dp 安全区内
+    on_red(int(108 * k), 0.56, alpha=0).save(os.path.join(d, "ic_launcher_foreground.png"))
+    for o, (w, h) in {"port": (320, 480), "land": (480, 320)}.items():
+        dd = os.path.join(OUT, f"drawable-{o}-{name}")
+        os.makedirs(dd, exist_ok=True)
+        W, H = int(w * k), int(h * k)
+        sp = Image.new("RGB", (W, H), DARK)
+        s = int(min(W, H) * 0.34)
+        ic = masked(full(s), "rr")
+        sp.paste(ic, ((W - s) // 2, (H - s) // 2), ic)
+        sp.save(os.path.join(dd, "splash.png"), optimize=True)
+os.makedirs(os.path.join(OUT, "drawable"), exist_ok=True)
+sp = Image.new("RGB", (480, 800), DARK)
+ic = masked(full(160), "rr"); sp.paste(ic, (160, 320), ic)
+sp.save(os.path.join(OUT, "drawable", "splash.png"), optimize=True)
+os.makedirs(os.path.join(OUT, "values"), exist_ok=True)
+with open(os.path.join(OUT, "values", "ic_launcher_background.xml"), "w") as f:
+    f.write('<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#%02X%02X%02X</color>\n</resources>\n' % RED)
+print("icons written; background", RED)

@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>自律打卡</title>
-<meta name="description" content="自律打卡：戒除坏习惯（戒色、戒扣痘痘、戒挖鼻孔…）、纪念日计数、倒计时，一个 App 全搞定。">
+<title>SUC</title>
+<meta name="description" content="SUC：戒除坏习惯（戒色、戒扣痘痘、戒挖鼻孔…）、纪念日计数、倒计时，一个 App 全搞定。">
 <meta name="theme-color" content="#0f1115">
 <!-- iOS PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="自律打卡">
+<meta name="apple-mobile-web-app-title" content="SUC">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -239,7 +239,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
   <!-- 首页：所有项目 -->
   <section class="page active" id="p-home">
     <div class="row between">
-      <div><h1 style="margin-bottom:2px">自律打卡</h1><div class="muted" id="todayStr" style="margin:0 2px 6px"></div></div>
+      <div><h1 style="margin-bottom:2px">SUC</h1><div class="muted" id="todayStr" style="margin:0 2px 6px"></div></div>
       <div class="row" style="gap:8px"><button class="syncdot" id="syncDot" onclick="go('me')"></button><button class="addbtn" onclick="openAdd()" aria-label="新建">＋</button></div>
     </div>
 
@@ -449,7 +449,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
 <div class="auth" id="auth">
   <div class="auth-box">
     <img src="icons/icon-192.png" alt="" class="auth-logo">
-    <h1 style="text-align:center;margin:10px 0 4px">自律打卡</h1>
+    <h1 style="text-align:center;margin:10px 0 4px">SUC</h1>
     <p class="muted" style="text-align:center;margin:0 0 22px">戒除坏习惯 · 纪念日 · 倒计时 · 碎碎念</p>
     <div class="seg"><button id="tabLogin" class="on" onclick="authTab('login')">登录</button><button id="tabReg" onclick="authTab('reg')">注册</button></div>
     <input type="text" id="aUser" placeholder="用户名" autocomplete="username" autocapitalize="off" spellcheck="false">
@@ -1401,7 +1401,7 @@ async function saveServer(){
   $('srvMsg').textContent = '正在连接…';
   try{
     const r = await api('ping', {}, url);
-    if(r.app !== 'zilv') throw new Error('这不是自律打卡的服务器');
+    if(r.app !== 'zilv') throw new Error('这不是 SUC 的服务器');
     localStorage.setItem(SRV_KEY, url);
     $('srvMsg').textContent = r.setup ? '✅ 连接成功！还没有管理员：请切到「注册」，用脚本里的 SETUP_CODE 当邀请码注册第一个账号。' : '✅ 连接成功';
     renderSrvHint();
@@ -1454,7 +1454,7 @@ async function newInvite(){
     adminCache = null; loadAdmin();
     showInfo('🎟 新邀请码', `<div style="font-size:30px;font-weight:800;letter-spacing:4px;text-align:center;font-family:ui-monospace,Menlo,monospace;margin:10px 0">${esc(r.invite.code)}</div>
       <p class="muted" style="line-height:1.7">把邀请码和下面的说明发给朋友：<br>iPhone 用 Safari 打开网页版并添加到主屏幕；安卓下载 APK 安装。打开后点「注册」，填用户名、密码和这个邀请码。</p>`,
-      `自律打卡邀请码：${r.invite.code}\niPhone：Safari 打开 https://emlikebot.github.io/nofap-pwa/ → 分享 → 添加到主屏幕\n安卓：下载安装 https://github.com/Emlikebot/nofap-pwa/releases/latest/download/zilv.apk\n打开后点「注册」，填用户名、密码和邀请码即可。`);
+      `SUC 邀请码：${r.invite.code}\niPhone：Safari 打开 https://emlikebot.github.io/nofap-pwa/ → 分享 → 添加到主屏幕\n安卓：下载安装 https://github.com/Emlikebot/nofap-pwa/releases/latest/download/zilv.apk\n打开后点「注册」，填用户名、密码和邀请码即可。`);
   }catch(e){ toast('生成失败：' + e.message); }
 }
 async function delInvite(code){
@@ -1533,14 +1533,14 @@ async function exportData(){
   if(isNative()){
     const F = NP('capacitorFilesystemPluginCapacitor'), Sh = NP('capacitorShare');
     try{
-      const r = await F.Filesystem.writeFile({path:`自律打卡备份-${dkey(Date.now())}.json`, data:JSON.stringify(o,null,2), directory:'CACHE', encoding:'utf8'});
-      await Sh.Share.share({title:'自律打卡备份', files:[r.uri]});
+      const r = await F.Filesystem.writeFile({path:`SUC备份-${dkey(Date.now())}.json`, data:JSON.stringify(o,null,2), directory:'CACHE', encoding:'utf8'});
+      await Sh.Share.share({title:'SUC 备份', files:[r.uri]});
     }catch(e){ if(!/cancel/i.test(String(e && e.message || e))) toast('导出失败：' + (e.message || e)); }
     return;
   }
   const blob = new Blob([JSON.stringify(o,null,2)],{type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `自律打卡备份-${dkey(Date.now())}.json`; document.body.appendChild(a); a.click(); a.remove();
+  a.download = `SUC备份-${dkey(Date.now())}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000); toast('备份已导出');
 }
 function importData(e){
