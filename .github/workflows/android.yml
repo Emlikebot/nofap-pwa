@@ -1,0 +1,80 @@
+# 每次推送到 main，自动编译安卓 APK 并发布到 Releases
+# 手机下载地址（始终是最新版）：https://github.com/Emlikebot/nofap-pwa/releases/latest/download/zilv.apk
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      BUILD: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 打包网页文件
+        run: node scripts/build-www.mjs "$BUILD"
+
+      - name: 生成安卓工程
+        run: |
+          npx cap add android
+          cp -r android-res/* android/app/src/main/res/
+          sed -i "s/versionCode 1$/versionCode $BUILD/; s/versionName \"1.0\"/versionName \"1.$BUILD\"/" android/app/build.gradle
+          grep -n "versionCode\|versionName" android/app/build.gradle
+
+      - name: 编译
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: 签名
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+        run: |
+          KS=android-signing/zilv.jks; PASS=zilv-daka-2026
+          if [ -n "$KS_B64" ]; then echo "$KS_B64" | base64 -d > /tmp/release.jks; KS=/tmp/release.jks; PASS="$KS_PASS"; fi
+          BT="$ANDROID_HOME/build-tools/36.0.0"
+          "$BT/zipalign" -f -p 4 android/app/build/outputs/apk/release/app-release-unsigned.apk aligned.apk
+          "$BT/apksigner" sign --ks "$KS" --ks-pass "pass:$PASS" --key-pass "pass:$PASS" --out zilv.apk aligned.apk
+          "$BT/apksigner" verify --print-certs zilv.apk | head -3
+          ls -la zilv.apk
+
+      - name: 发布到 Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-${{ github.run_number }}
+          name: 自律打卡 安卓版 1.${{ github.run_number }}
+          body: |
+            手机浏览器打开下面的 zilv.apk 下载安装即可（首次安装需允许“安装未知应用”）。
+            之后有新版本，App 的「我的」页面会提示更新；直接覆盖安装，数据不会丢。
+            提交：${{ github.sha }}
+          files: zilv.apk
+          make_latest: true

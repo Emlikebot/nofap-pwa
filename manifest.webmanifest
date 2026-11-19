@@ -1,7 +1,7 @@
 {
   "name": "自律打卡",
   "short_name": "自律打卡",
-  "description": "戒色打卡：记录坚持天数、每日打卡、冲动急救与里程碑勋章。",
+  "description": "自律打卡：戒除坏习惯、纪念日计数、倒计时。",
   "lang": "zh-CN",
   "start_url": "./",
   "scope": "./",

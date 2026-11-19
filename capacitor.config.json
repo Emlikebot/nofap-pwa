@@ -1,0 +1,15 @@
+{
+  "appId": "com.emlikebot.zilv",
+  "appName": "自律打卡",
+  "webDir": "www",
+  "backgroundColor": "#0f1115",
+  "android": {
+    "backgroundColor": "#0f1115"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK"
+    }
+  }
+}

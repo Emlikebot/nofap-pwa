@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>自律打卡</title>
-<meta name="description" content="戒色打卡：记录坚持天数、每日打卡、冲动急救与里程碑勋章。">
+<meta name="description" content="自律打卡：戒除坏习惯（戒色、戒扣痘痘、戒挖鼻孔…）、纪念日计数、倒计时，一个 App 全搞定。">
 <meta name="theme-color" content="#0f1115">
 <!-- iOS PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,8 +19,9 @@
 :root{
   --bg:#0f1115; --card:#181b22; --card2:#20242d; --line:#2a2f3a;
   --text:#eef0f4; --sub:#9aa1ad; --accent:#34d399; --accent2:#10b981;
-  --warn:#f87171; --gold:#fbbf24; --blue:#60a5fa;
-  --safe-top:env(safe-area-inset-top); --safe-bottom:env(safe-area-inset-bottom);
+  --warn:#f87171; --gold:#fbbf24; --blue:#60a5fa; --pink:#f472b6;
+  --c:var(--accent);
+  --safe-top:var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); --safe-bottom:var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
@@ -42,6 +43,42 @@ h2{font-size:17px;margin:0 0 12px;font-weight:600}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 
+/* 首页列表 */
+.addbtn{width:38px;height:38px;border-radius:12px;background:var(--card2);font-size:24px;line-height:1;color:var(--accent);flex:none}
+.sec{font-size:13px;color:var(--sub);margin:18px 4px 8px;font-weight:600;letter-spacing:.5px}
+.icard{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:14px 14px 14px 16px;margin-bottom:10px;position:relative;overflow:hidden;cursor:pointer;transition:transform .1s}
+.icard:active{transform:scale(.985)}
+.icard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.icard .emo{font-size:26px;width:46px;height:46px;border-radius:14px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex:none}
+.icard .mid{flex:1;min-width:0}
+.icard .nm{font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icard .sub{font-size:12px;color:var(--sub);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icard .sub.warn{color:var(--warn)}
+.icard .num{text-align:right;flex:none}
+.icard .num .pre{font-size:11px;color:var(--sub)}
+.icard .num b{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--c);line-height:1.1}
+.icard .num .u{font-size:13px;color:var(--sub);margin-left:2px}
+.icard .num .hm{font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:2px}
+.qk{margin-top:8px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(52,211,153,.14);color:var(--accent)}
+.qk.done{background:var(--card2);color:var(--sub)}
+.empty{text-align:center;padding:34px 18px}
+.empty .e{font-size:44px}
+
+/* 详情 */
+.dhead{display:flex;justify-content:space-between;align-items:center;margin:2px 0 4px}
+.dhead button{padding:8px 4px;font-size:16px;color:var(--accent)}
+.bigemo{font-size:46px;line-height:1.1;margin-bottom:6px}
+.stat.s b{font-size:16px;line-height:1.5}
+.pbar{height:10px;border-radius:6px;background:var(--card2);overflow:hidden;margin:10px 0 8px}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--c),#a5b4fc);border-radius:6px}
+.ms{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.ms:last-child{border-bottom:0}
+.ms .e{font-size:22px;width:30px;text-align:center}
+.ms .t{flex:1}
+.ms .t b{font-size:15px}
+.ms .lf{color:var(--c);font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+
 /* streak ring */
 .hero{text-align:center;padding:22px 18px 20px}
 .ring{position:relative;width:230px;height:230px;margin:6px auto 10px}
@@ -49,6 +86,7 @@ h2{font-size:17px;margin:0 0 12px;font-weight:600}
 .ring .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .days{font-size:68px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
 .days small{font-size:18px;font-weight:600;margin-left:4px;color:var(--sub)}
+.days .pf{font-size:20px;font-weight:600;color:var(--sub);margin-right:6px}
 .hms{font-size:17px;color:var(--sub);margin-top:8px;font-variant-numeric:tabular-nums;letter-spacing:1px}
 .next{font-size:13px;color:var(--sub);margin-top:6px}
 .btn{display:block;width:100%;padding:15px;border-radius:14px;font-size:17px;font-weight:600;text-align:center;transition:transform .1s,opacity .2s}
@@ -57,8 +95,8 @@ h2{font-size:17px;margin:0 0 12px;font-weight:600}
 .btn-primary[disabled]{background:var(--card2);color:var(--sub)}
 .btn-ghost{background:var(--card2)}
 .btn-danger{background:rgba(248,113,113,.14);color:var(--warn)}
-.btn-sm{padding:10px 14px;font-size:15px;border-radius:12px;display:inline-block;width:auto}
-.stat{background:var(--card2);border-radius:14px;padding:14px;text-align:center}
+.btn-sm{padding:10px 14px;font-size:15px;border-radius:12px;display:inline-block;width:auto;white-space:nowrap}
+.stat{background:var(--card2);border-radius:14px;padding:14px 8px;text-align:center}
 .stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--sub)}
 .quote{font-size:15px;line-height:1.7}
@@ -91,7 +129,7 @@ h2{font-size:17px;margin:0 0 12px;font-weight:600}
   transition:transform 4s ease-in-out;box-shadow:0 0 60px rgba(96,165,250,.35)}
 .breath .txt{position:relative;font-size:20px;font-weight:600;text-align:center}
 .breath .txt small{display:block;font-size:14px;font-weight:400;opacity:.85;margin-top:4px}
-.task{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--card2);margin-bottom:8px}
+.task{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--card2);margin-bottom:8px;cursor:pointer}
 .task .ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--sub);flex:none;display:flex;align-items:center;justify-content:center;font-size:14px}
 .task.done .ck{background:var(--accent);border-color:var(--accent);color:#062b1f}
 .task.done .t{text-decoration:line-through;color:var(--sub)}
@@ -114,22 +152,78 @@ h2{font-size:17px;margin:0 0 12px;font-weight:600}
 .tabbar button.sos.active{color:var(--blue)}
 
 /* sheet */
-.mask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:30;display:none;align-items:flex-end;justify-content:center}
 .mask.show{display:flex;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .sheet{width:100%;max-width:560px;background:var(--card);border-radius:22px 22px 0 0;padding:10px 18px calc(var(--safe-bottom) + 18px);
-  animation:up .28s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow:auto}
+  animation:up .28s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow:auto;-webkit-overflow-scrolling:touch}
 @keyframes up{from{transform:translateY(100%)}to{transform:none}}
 .sheet .grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
 .chip{padding:9px 14px;border-radius:999px;background:var(--card2);font-size:14px;border:1px solid transparent}
 .chip.on{border-color:var(--accent);color:var(--accent);background:rgba(52,211,153,.1)}
 .chips.red .chip.on{border-color:var(--warn);color:var(--warn);background:rgba(248,113,113,.1)}
-textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;outline:none}
+textarea,input[type=text],input[type=password],input[type=datetime-local],input[type=date]{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;outline:none;-webkit-appearance:none;appearance:none;min-height:48px;display:block}
 textarea{min-height:80px;resize:none}
-label.l{display:block;font-size:13px;color:var(--sub);margin:4px 0 6px}
+label.l{display:block;font-size:13px;color:var(--sub);margin:14px 0 6px}
+.hint{font-size:12px;color:var(--sub);margin-top:6px}
+.emo-row{display:flex;gap:6px;overflow-x:auto;flex:1;padding:2px 0;scrollbar-width:none}
+.emo-row::-webkit-scrollbar{display:none}
+.emo-b{font-size:22px;width:42px;height:42px;border-radius:12px;background:var(--card2);flex:none}
+.opt{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+.sw{position:relative;width:50px;height:30px;flex:none}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw span{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:.2s}
+.sw span:after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+span{background:var(--accent)}
+.sw input:checked+span:after{transform:translateX(20px)}
+.tpl-sec{margin-bottom:16px}
+.tpl-sec .h{font-weight:600;font-size:15px}
+.tpl-sec .h small{font-weight:400;color:var(--sub);font-size:12px;margin-left:6px}
+/* 碎碎念 */
+.composer{padding:14px}
+.composer textarea{min-height:84px;border:0;background:var(--card2)}
+.composer .bar{display:flex;align-items:center;gap:8px;margin-top:10px}
+.mood-row{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none}
+.mood-row::-webkit-scrollbar{display:none}
+.mood-b{font-size:20px;width:36px;height:36px;border-radius:10px;flex:none;opacity:.4;transition:opacity .15s}
+.mood-b.on{opacity:1;background:var(--card2);box-shadow:0 0 0 1px var(--accent) inset}
+.linkb{flex:none;width:36px;height:36px;border-radius:10px;background:var(--card2);color:var(--sub);font-size:16px}
+.linkb.on{color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.send{padding:9px 18px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#062b1f;font-weight:700;flex:none}
+.send[disabled]{opacity:.35}
+.lchips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.lchips::-webkit-scrollbar{display:none}
+.lchips .chip{flex:none;padding:6px 12px;font-size:13px}
+.nsearch{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;outline:none;-webkit-appearance:none}
+.nday{font-size:13px;color:var(--sub);margin:18px 4px 8px;font-weight:600;display:flex;justify-content:space-between}
+.note{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:8px}
+.note .top{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub)}
+.note .top .md{font-size:18px}
+.note .tx{font-size:15px;line-height:1.7;margin-top:6px;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text}
+.note .more{margin-left:auto;padding:0 2px 0 10px;font-size:18px;color:var(--sub);line-height:1}
+.note .itag{display:inline-block;padding:1px 8px;border-radius:8px;background:var(--card2);font-size:12px;color:var(--sub)}
+.note mark{background:rgba(251,191,36,.3);color:inherit;border-radius:3px}
+.otd{border-color:rgba(167,139,250,.35);background:linear-gradient(160deg,rgba(167,139,250,.12),rgba(167,139,250,.02))}
+.otd .note{background:rgba(0,0,0,.18)}
+/* 登录 */
+.auth{position:fixed;inset:0;z-index:25;background:var(--bg);display:none;overflow:auto;
+  padding:calc(var(--safe-top) + 40px) 22px calc(var(--safe-bottom) + 30px)}
+.auth.show{display:block;animation:fadeIn .2s}
+.auth-box{max-width:380px;margin:0 auto}
+.auth-logo{display:block;width:76px;height:76px;border-radius:20px;margin:0 auto}
+.seg{display:flex;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;padding:9px;border-radius:9px;font-size:15px;color:var(--sub)}
+.seg button.on{background:var(--card);color:var(--text);font-weight:600}
+.aerr{color:var(--warn);font-size:13px;margin-top:10px;min-height:18px;line-height:1.5}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#60a5fa);color:#06231a;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center;flex:none}
+.syncdot{min-width:38px;height:38px;border-radius:12px;background:var(--card2);font-size:16px;padding:0 8px}
+.syncdot:empty{display:none}
+details.guide{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+details.guide summary{cursor:pointer;color:var(--accent);font-size:14px;padding:4px 0}
+code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
 .toast{position:fixed;left:50%;top:calc(var(--safe-top) + 14px);transform:translate(-50%,-30px);opacity:0;
-  background:rgba(32,36,45,.96);padding:11px 18px;border-radius:999px;font-size:14px;z-index:30;transition:.3s;pointer-events:none;border:1px solid var(--line);white-space:nowrap}
+  background:rgba(32,36,45,.96);padding:11px 18px;border-radius:999px;font-size:14px;z-index:45;transition:.3s;pointer-events:none;border:1px solid var(--line);white-space:nowrap}
 .toast.show{transform:translate(-50%,0);opacity:1}
 .menu .mi{display:flex;justify-content:space-between;align-items:center;padding:15px 2px;border-bottom:1px solid var(--line);font-size:16px;width:100%;text-align:left}
 .menu .mi:last-of-type{border-bottom:0}
@@ -142,140 +236,129 @@ label.l{display:block;font-size:13px;color:var(--sub);margin:4px 0 6px}
 <body>
 <div id="app">
 
-  <!-- 首页 -->
+  <!-- 首页：所有项目 -->
   <section class="page active" id="p-home">
-    <div class="row between"><h1>自律打卡</h1><span class="muted" id="todayStr"></span></div>
+    <div class="row between">
+      <div><h1 style="margin-bottom:2px">自律打卡</h1><div class="muted" id="todayStr" style="margin:0 2px 6px"></div></div>
+      <div class="row" style="gap:8px"><button class="syncdot" id="syncDot" onclick="go('me')"></button><button class="addbtn" onclick="openAdd()" aria-label="新建">＋</button></div>
+    </div>
 
     <div class="card install" id="installTip">
       <div class="row between"><b>📲 添加到主屏幕</b><button class="muted" onclick="hideInstall()">✕</button></div>
       <p class="muted" style="margin:8px 0 0;line-height:1.6">在 Safari 中点击底部 <b>分享</b> 按钮 → 选择 <b>“添加到主屏幕”</b>，即可像 App 一样全屏使用，数据离线保存在本机。</p>
     </div>
 
-    <div class="card hero">
-      <div class="muted">已坚持</div>
-      <div class="ring">
-        <svg width="230" height="230" viewBox="0 0 230 230">
-          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6ee7b7"/><stop offset="1" stop-color="#10b981"/></linearGradient></defs>
-          <circle cx="115" cy="115" r="100" fill="none" stroke="#252a34" stroke-width="14"/>
-          <circle id="ringBar" cx="115" cy="115" r="100" fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round" stroke-dasharray="628.3" stroke-dashoffset="628.3" style="transition:stroke-dashoffset .6s"/>
-        </svg>
-        <div class="center">
-          <div class="days"><span id="dNum">0</span><small>天</small></div>
-          <div class="hms" id="hms">00:00:00</div>
-          <div class="next" id="nextGoal"></div>
-        </div>
-      </div>
-      <button class="btn btn-primary" id="checkBtn" onclick="openCheckin()">今日打卡</button>
-    </div>
-
-    <div class="grid3" style="margin-bottom:14px">
-      <div class="stat"><b id="sBest">0</b><span>最长记录(天)</span></div>
-      <div class="stat"><b id="sStreakCk">0</b><span>连续打卡</span></div>
-      <div class="stat"><b id="sTotal">0</b><span>累计打卡</span></div>
-    </div>
-
-    <div class="card">
-      <h2>💬 今日一句</h2>
-      <div class="quote" id="quote"></div>
-    </div>
-
-    <div class="card" id="reasonsCard">
-      <div class="row between"><h2 style="margin:0">🎯 我为什么要坚持</h2><button class="muted" onclick="openReasons()">编辑</button></div>
-      <div id="reasonsList" class="list" style="margin-top:6px"></div>
-    </div>
-
-    <button class="btn btn-danger" onclick="openRelapse()">我破戒了…（重新开始）</button>
+    <div id="homeList"></div>
   </section>
 
-  <!-- 日历 -->
-  <section class="page" id="p-cal">
-    <h1>打卡日历</h1>
-    <div class="card">
-      <div class="cal-head">
-        <button onclick="shiftMonth(-1)">‹</button>
-        <b id="calTitle"></b>
-        <button onclick="shiftMonth(1)">›</button>
+  <!-- 项目详情 -->
+  <section class="page" id="p-detail">
+    <div id="detailBody"></div>
+  </section>
+
+  <!-- 碎碎念 -->
+  <section class="page" id="p-notes">
+    <div class="row between"><h1>碎碎念</h1><span class="muted" id="noteStat"></span></div>
+    <div class="card composer">
+      <textarea id="nInput" placeholder="在想什么？随便说说…" oninput="onDraft()"></textarea>
+      <div class="lchips" id="nLinks" style="display:none"></div>
+      <div class="bar">
+        <div class="mood-row" id="nMoods"></div>
+        <button class="linkb" id="nLinkBtn" onclick="toggleLinks()" title="关联项目">＃</button>
+        <button class="send" id="nSend" onclick="postNote()" disabled>发</button>
       </div>
-      <div class="cal" id="cal"></div>
-      <div class="legend"><span><i style="background:var(--accent)"></i>已打卡</span><span><i style="background:var(--warn)"></i>破戒</span><span><i style="border:2px solid var(--blue)"></i>今天</span></div>
     </div>
-    <div class="grid2" style="margin-bottom:14px">
-      <div class="stat"><b id="mOk">0</b><span>本月打卡</span></div>
-      <div class="stat"><b id="mBad">0</b><span>本月破戒</span></div>
-    </div>
-    <div class="card">
-      <h2>📝 打卡日记</h2>
-      <div class="list" id="journal"></div>
-    </div>
+    <div id="otd"></div>
+    <input type="search" class="nsearch" id="nSearch" placeholder="🔍 搜索碎碎念" oninput="noteLimit=60;renderNotes()">
+    <div id="noteList"></div>
   </section>
 
   <!-- 急救 -->
   <section class="page" id="p-sos">
     <h1>冲动急救</h1>
-    <div class="card" style="text-align:center">
-      <div class="muted" style="margin-bottom:4px">冲动通常在 15–20 分钟内消退。跟着呼吸，先撑过这一波。</div>
-      <div class="breath"><div class="orb" id="orb"></div><div class="txt" id="breathTxt">准备好了吗<small>方块呼吸 4-4-4-4</small></div></div>
-      <div class="row" style="justify-content:center;gap:10px">
-        <button class="btn btn-primary btn-sm" id="breathBtn" onclick="toggleBreath()">开始呼吸</button>
+    <div class="chips" id="sosPick" style="margin-top:-4px"></div>
+    <div id="sosEmpty" class="card empty" style="display:none">
+      <div class="e">🛡️</div>
+      <p class="muted">还没有「戒除」类项目。<br>先去首页 ＋ 新建一个吧。</p>
+    </div>
+    <div id="sosMain">
+      <div class="card" style="text-align:center">
+        <div class="muted" style="margin-bottom:4px">冲动通常在 15–20 分钟内消退。跟着呼吸，先撑过这一波。</div>
+        <div class="breath"><div class="orb" id="orb"></div><div class="txt" id="breathTxt">准备好了吗<small>方块呼吸 4-4-4-4</small></div></div>
+        <div class="row" style="justify-content:center;gap:10px">
+          <button class="btn btn-primary btn-sm" id="breathBtn" onclick="toggleBreath()">开始呼吸</button>
+        </div>
+        <div class="muted" style="margin-top:10px" id="breathInfo"></div>
       </div>
-      <div class="muted" style="margin-top:10px" id="breathInfo"></div>
-    </div>
 
-    <div class="card">
-      <h2>⚡️ 立刻做一件事</h2>
-      <div id="tasks"></div>
-    </div>
+      <div class="card">
+        <h2>⚡️ 立刻做一件事</h2>
+        <div id="tasks"></div>
+      </div>
 
-    <div class="card">
-      <h2>🧠 提醒自己</h2>
-      <div class="quote" id="sosQuote"></div>
-      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="newSosQuote()">换一句</button>
-    </div>
+      <div class="card">
+        <h2>🧠 提醒自己</h2>
+        <div class="quote" id="sosQuote"></div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="newSosQuote()">换一句</button>
+      </div>
 
-    <div class="card">
-      <div class="row between"><div><b>挺过来了？</b><div class="muted">记录下这次胜利</div></div>
-      <button class="btn btn-primary btn-sm" onclick="winUrge()">我赢了 💪</button></div>
-      <div class="muted" style="margin-top:10px" id="urgeCount"></div>
+      <div class="card">
+        <div class="row between"><div><b>挺过来了？</b><div class="muted">记录下这次胜利</div></div>
+        <button class="btn btn-primary btn-sm" onclick="winUrge()">我赢了 💪</button></div>
+        <div class="muted" style="margin-top:10px" id="urgeCount"></div>
+      </div>
     </div>
   </section>
 
   <!-- 我的 -->
   <section class="page" id="p-me">
-    <h1>成就与设置</h1>
-    <div class="card">
-      <h2>🏅 里程碑勋章</h2>
-      <div class="grid3" id="badges"></div>
-    </div>
-    <div class="card">
-      <h2>📉 破戒记录</h2>
-      <div class="list" id="relapses"></div>
-    </div>
+    <h1>我的</h1>
+    <div class="grid3" style="margin-bottom:14px" id="meStats"></div>
+    <div class="card" id="updCard" style="display:none;border-color:rgba(52,211,153,.45)"></div>
+    <div class="card" id="accCard"></div>
+    <div class="card" id="adminCard" style="display:none"></div>
     <div class="card menu">
-      <button class="mi" onclick="openStart()"><span>修改开始时间</span><span>›</span></button>
-      <button class="mi" onclick="openReasons()"><span>编辑我的理由</span><span>›</span></button>
+      <button class="mi" onclick="openAdd()"><span>＋ 新建项目</span><span>›</span></button>
       <button class="mi" onclick="exportData()"><span>导出备份</span><span>›</span></button>
       <button class="mi" onclick="document.getElementById('importFile').click()"><span>导入备份</span><span>›</span></button>
       <button class="mi" onclick="resetAll()"><span style="color:var(--warn)">清空所有数据</span><span>›</span></button>
       <input type="file" id="importFile" accept="application/json,.json" hidden onchange="importData(event)">
     </div>
-    <p class="muted" style="text-align:center;line-height:1.6">数据仅保存在本机浏览器中，不会上传。<br>建议定期导出备份。</p>
+    <p class="muted" style="text-align:center;line-height:1.6" id="meFoot"></p>
   </section>
 </div>
 
 <!-- 底部导航 -->
 <nav class="tabbar">
   <button class="active" data-p="home" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>首页</button>
-  <button data-p="cal" onclick="go('cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>日历</button>
+  <button data-p="notes" onclick="go('notes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>碎碎念</button>
   <button class="sos" data-p="sos" onclick="go('sos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/><path d="M12 10v4M10 12h4"/></svg>急救</button>
-  <button data-p="me" onclick="go('me')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg>成就</button>
+  <button data-p="me" onclick="go('me')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>我的</button>
 </nav>
+
+<!-- 新建：选择类型 / 模板 -->
+<div class="mask" id="mAdd" onclick="if(event.target===this)closeSheet(this)">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h2>新建项目</h2>
+    <div id="addBody"></div>
+  </div>
+</div>
+
+<!-- 编辑项目 -->
+<div class="mask" id="mEdit" onclick="if(event.target===this)closeSheet(this)">
+  <div class="sheet">
+    <div class="grab"></div>
+    <div id="editBody"></div>
+  </div>
+</div>
 
 <!-- 打卡弹层 -->
 <div class="mask" id="mCheck" onclick="if(event.target===this)closeSheet(this)">
   <div class="sheet">
     <div class="grab"></div>
-    <h2>✅ 今日打卡</h2>
-    <label class="l">今天的状态</label>
+    <h2 id="ckTitle">✅ 今日打卡</h2>
+    <label class="l" style="margin-top:0">今天的状态</label>
     <div class="chips" id="moodChips"></div>
     <label class="l">写点什么（可选）</label>
     <textarea id="ckNote" placeholder="今天做了什么有意义的事？有什么感受？"></textarea>
@@ -287,7 +370,7 @@ label.l{display:block;font-size:13px;color:var(--sub);margin:4px 0 6px}
 <div class="mask" id="mRelapse" onclick="if(event.target===this)closeSheet(this)">
   <div class="sheet">
     <div class="grab"></div>
-    <h2>没关系，重新出发</h2>
+    <h2 id="rlTitle">没关系，重新出发</h2>
     <p class="muted" style="margin-top:-4px;line-height:1.6">跌倒不可怕，重要的是找到原因。记录诱因能帮你下次提前防范。</p>
     <label class="l">诱因是什么？</label>
     <div class="chips red" id="trigChips"></div>
@@ -298,34 +381,100 @@ label.l{display:block;font-size:13px;color:var(--sub);margin:4px 0 6px}
   </div>
 </div>
 
-<!-- 理由弹层 -->
-<div class="mask" id="mReasons" onclick="if(event.target===this)closeSheet(this)">
+<!-- 编辑碎碎念 -->
+<div class="mask" id="mNote" onclick="if(event.target===this)closeSheet(this)">
   <div class="sheet">
     <div class="grab"></div>
-    <h2>🎯 我为什么要坚持</h2>
-    <p class="muted" style="margin-top:-4px">每行一条。冲动来临时，它们会出现在首页提醒你。</p>
-    <textarea id="reasonsInput" style="min-height:160px"></textarea>
-    <button class="btn btn-primary" style="margin-top:14px" onclick="saveReasons()">保存</button>
+    <div class="row between"><h2 style="margin:0">💭 编辑碎碎念</h2><span class="muted" id="neTime"></span></div>
+    <textarea id="neText" style="margin-top:12px;min-height:120px"></textarea>
+    <div class="mood-row" id="neMoods" style="margin-top:10px"></div>
+    <div class="lchips" id="neLinks"></div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="saveNoteEdit()">保存</button>
+    <div class="grid2" style="margin-top:10px">
+      <button class="btn btn-ghost" onclick="copyNote()">复制</button>
+      <button class="btn btn-danger" onclick="deleteNote()">删除</button>
+    </div>
   </div>
 </div>
 
-<!-- 开始时间弹层 -->
-<div class="mask" id="mStart" onclick="if(event.target===this)closeSheet(this)">
+<!-- 服务器设置 -->
+<div class="mask" id="mServer" onclick="if(event.target===this)closeSheet(this)">
   <div class="sheet">
     <div class="grab"></div>
-    <h2>⏱ 修改开始时间</h2>
-    <p class="muted" style="margin-top:-4px">如果你在使用本应用之前就已经开始坚持，可以在这里设置。</p>
-    <input type="datetime-local" id="startInput">
-    <button class="btn btn-primary" style="margin-top:14px" onclick="saveStart()">保存</button>
+    <h2>⚙︎ 服务器设置</h2>
+    <p class="muted" style="margin-top:-4px;line-height:1.6">填管理员给你的服务器网址。如果你是管理员、还没搭服务器，按下面的步骤来（约 3 分钟，建议在电脑上操作）。</p>
+    <input type="text" id="srvUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="hint" id="srvMsg" style="line-height:1.6"></div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="saveServer()">保存并测试</button>
+    <details class="guide">
+      <summary>管理员：怎么搭建服务器？</summary>
+      <div class="list" style="line-height:1.7;font-size:14px">
+        <div class="item"><b>1.</b> 电脑浏览器打开 <b>script.google.com</b>，登录你的 Google 账号 → 点「新建项目」</div>
+        <div class="item"><b>2.</b> 点下面的按钮复制服务器代码，粘贴进去<b>替换</b>原有内容；把 <code>const SETUP_CODE = …</code> 引号里的内容改成你自己的一串“管理员初始邀请码”，按 Ctrl+S 保存</div>
+        <div class="item"><b>3.</b> 右上角「部署」→「新建部署」→ 齿轮选「网页应用」；执行身份选「<b>我</b>」，谁可以访问选「<b>任何人</b>」→ 部署</div>
+        <div class="item"><b>4.</b> 按提示授权。出现“Google 尚未验证此应用”时点「高级」→「转至…（不安全）」，因为这是你自己的脚本</div>
+        <div class="item"><b>5.</b> 复制「网页应用」网址（<code>…/exec</code> 结尾）填到上面，保存并测试；然后切到「注册」，用 SETUP_CODE 当邀请码注册，第一个账号就是管理员</div>
+      </div>
+      <button class="btn btn-ghost" style="margin-top:6px" onclick="copyScript()">📋 复制服务器代码</button>
+      <p class="hint" style="line-height:1.6">所有账号的数据都存在你 Google Drive 的「自律打卡云端」文件夹，每个账号一个子文件夹，含每日快照（保留 30 天）。</p>
+    </details>
+  </div>
+</div>
+
+<!-- 修改密码 -->
+<div class="mask" id="mPw" onclick="if(event.target===this)closeSheet(this)">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h2>🔑 修改密码</h2>
+    <input type="password" id="pwOld" placeholder="原密码" autocomplete="current-password">
+    <input type="password" id="pwNew" placeholder="新密码（至少 6 位）" autocomplete="new-password" style="margin-top:10px">
+    <input type="password" id="pwNew2" placeholder="再输入一次新密码" autocomplete="new-password" style="margin-top:10px">
+    <div class="hint" id="pwMsg" style="color:var(--warn)"></div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="savePw()">确认修改</button>
+  </div>
+</div>
+
+<!-- 信息 -->
+<div class="mask" id="mInfo" onclick="if(event.target===this)closeSheet(this)">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h2 id="infoTitle"></h2>
+    <div id="infoBody"></div>
+    <button class="btn btn-primary" id="infoCopy" style="margin-top:12px" onclick="copyText(infoCopy)">复制</button>
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="closeSheet($('mInfo'))">关闭</button>
+  </div>
+</div>
+
+<!-- 登录 / 注册 -->
+<div class="auth" id="auth">
+  <div class="auth-box">
+    <img src="icons/icon-192.png" alt="" class="auth-logo">
+    <h1 style="text-align:center;margin:10px 0 4px">自律打卡</h1>
+    <p class="muted" style="text-align:center;margin:0 0 22px">戒除坏习惯 · 纪念日 · 倒计时 · 碎碎念</p>
+    <div class="seg"><button id="tabLogin" class="on" onclick="authTab('login')">登录</button><button id="tabReg" onclick="authTab('reg')">注册</button></div>
+    <input type="text" id="aUser" placeholder="用户名" autocomplete="username" autocapitalize="off" spellcheck="false">
+    <input type="password" id="aPass" placeholder="密码" autocomplete="current-password" style="margin-top:10px" onkeydown="if(event.key==='Enter')authSubmit()">
+    <div id="aInvWrap" style="display:none"><input type="text" id="aInv" placeholder="邀请码" autocapitalize="characters" autocomplete="off" spellcheck="false" style="margin-top:10px"></div>
+    <div class="aerr" id="aErr"></div>
+    <button class="btn btn-primary" id="aBtn" style="margin-top:14px" onclick="authSubmit()">登录</button>
+    <div class="row between" style="margin-top:16px"><button class="muted" onclick="openServer()">⚙︎ 服务器设置</button><span class="muted" id="aSrv"></span></div>
+    <p class="hint" style="text-align:center;margin-top:20px;line-height:1.6">登录后离线也能用，联网自动同步。<br>注册需要管理员给的邀请码。</p>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 <canvas class="confetti" id="confetti"></canvas>
 
+<!--NATIVE_SCRIPTS-->
 <script>
-/* ========== 数据 ========== */
-const KEY = 'nofap-pwa-v1';
+/* ========== 常量 ========== */
+const APP_BUILD = 0;              // 安卓构建号（CI 打包时自动写入）
+const isNative = () => !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+const KEY = 'zilv-v2';
+const OLDKEY = 'nofap-pwa-v1';           // 旧版（只有戒色）数据，首次打开会自动迁移，旧数据保留不删
+const DAY = 86400000;
+const TYPE_NAME = {quit:'戒除', anniv:'纪念日', countdown:'倒计时'};
+const TYPE_COLOR = {quit:'#34d399', anniv:'#f472b6', countdown:'#60a5fa'};
 const MILESTONES = [
   {d:1,  e:'🌱', n:'破土'},  {d:3,  e:'🔥', n:'点燃'},  {d:7,  e:'⚔️', n:'一周勇士'},
   {d:14, e:'🛡️', n:'两周坚守'},{d:21, e:'🧱', n:'习惯养成'},{d:30, e:'🌙', n:'满月'},
@@ -333,8 +482,51 @@ const MILESTONES = [
   {d:365,e:'👑', n:'王者一年'},{d:500,e:'🌌', n:'星辰'},  {d:1000,e:'🐉', n:'传说'}
 ];
 const MOODS = ['😄 很好','🙂 不错','😐 一般','😣 有冲动','😫 很艰难'];
-const TRIGGERS = ['无聊','压力大','熬夜','刷手机','孤独','情绪低落','看到刺激内容','其他'];
-const TASKS = ['立刻离开当前房间','用冷水洗脸','做 20 个俯卧撑 / 深蹲','出门散步 10 分钟','给朋友发条消息','把手机放到另一个房间','喝一大杯水','读 5 页书'];
+const GENERIC = {
+  triggers:['无聊','压力大','情绪低落','习惯性','其他'],
+  tasks:['离开当前环境','深呼吸 10 次','喝一大杯水','起身走动 5 分钟','给朋友发条消息'],
+  reasons:['成为一个说到做到的人']
+};
+const QUIT_TPL = [
+  {k:'nofap', name:'戒色', emoji:'🌱',
+   triggers:['无聊','压力大','熬夜','刷手机','孤独','情绪低落','看到刺激内容','其他'],
+   tasks:['立刻离开当前房间','用冷水洗脸','做 20 个俯卧撑 / 深蹲','出门散步 10 分钟','给朋友发条消息','把手机放到另一个房间','喝一大杯水','读 5 页书'],
+   reasons:['拥有更充沛的精力和专注力','成为一个说到做到的人','把时间留给真正重要的人和事']},
+  {k:'pimple', name:'戒扣痘痘', emoji:'🙅',
+   triggers:['无聊','焦虑紧张','照镜子','压力大','手闲着','熬夜','其他'],
+   tasks:['把手从脸上拿开，握住一个东西','贴上痘痘贴 / 创可贴','离开镜子','去洗手，涂点护肤品','玩解压玩具或捏捏手指','喝一杯水','深呼吸 10 次'],
+   reasons:['皮肤不留痘印和疤','避免发炎感染','照镜子时更自信']},
+  {k:'nose', name:'戒挖鼻孔', emoji:'👃',
+   triggers:['无意识','鼻子干痒','无聊','专注工作时','开车 / 等红灯','其他'],
+   tasks:['用纸巾擤一下鼻子','用生理盐水喷一喷','去洗手','手里握个东西','给鼻腔涂点凡士林保湿'],
+   reasons:['避免鼻腔出血和感染','在别人面前更体面','保护鼻黏膜']},
+  {k:'nail', name:'戒咬指甲', emoji:'💅',
+   triggers:['紧张焦虑','无聊','看视频 / 打游戏','思考问题时','其他'],
+   tasks:['把手放进口袋或握个东西','涂上护手霜','剪短磨平指甲','玩解压玩具','喝一杯水'],
+   reasons:['指甲和手更好看','避免甲沟炎','改掉这个小动作']},
+  {k:'smoke', name:'戒烟', emoji:'🚭',
+   triggers:['饭后','压力大','喝酒','社交场合','无聊','其他'],
+   tasks:['喝一大杯冷水','嚼口香糖','做 10 次深呼吸','离开吸烟场所','给朋友发条消息'],
+   reasons:['身体更健康','省钱','身上不再有烟味']},
+  {k:'night', name:'戒熬夜', emoji:'🌙',
+   triggers:['刷手机','追剧 / 游戏','工作学习','失眠','其他'],
+   tasks:['把手机放到够不着的地方','关灯躺下','听白噪音','做 4-7-8 呼吸'],
+   reasons:['白天精力更好','皮肤更好','长期健康']},
+  {k:'custom', name:'', emoji:'⭐', ...GENERIC}
+];
+const ANNIV_TPL = [
+  {name:'和女友在一起', emoji:'💕'},{name:'结婚纪念日', emoji:'💍'},{name:'宝宝出生', emoji:'👶'},
+  {name:'入职', emoji:'💼'},{name:'养猫 / 养狗', emoji:'🐱'},{name:'', emoji:'📅', label:'自定义'}
+];
+const CD_TPL = [
+  {name:'元旦', emoji:'🎆', md:[0,1], yearly:true},{name:'生日', emoji:'🎂', yearly:true},
+  {name:'考试', emoji:'📝'},{name:'旅行出发', emoji:'✈️'},{name:'发工资', emoji:'💰'},{name:'', emoji:'⏳', label:'自定义'}
+];
+const EMOJIS = {
+  quit:['🌱','🙅','👃','💅','🚭','🌙','🧋','📵','🍬','🎮','🍺','🍔','⭐'],
+  anniv:['💕','💍','❤️','🌹','👶','💼','🏠','🐱','🐶','🎓','📅'],
+  countdown:['🎆','🧧','🎂','📝','✈️','🎄','🏖️','💰','🎁','💼','⏳']
+};
 const QUOTES = [
   ['自律给我自由。','康德'],
   ['能控制自己的人，才能主宰自己的命运。','佚名'],
@@ -354,135 +546,277 @@ const QUOTES = [
   ['种一棵树最好的时间是十年前，其次是现在。','谚语'],
 ];
 
-function load(){
-  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.startTime) return s; }catch(e){}
-  return {startTime:Date.now(), best:0, checkins:{}, relapses:[], urges:0,
-    reasons:['拥有更充沛的精力和专注力','成为一个说到做到的人','把时间留给真正重要的人和事']};
-}
-let S = load();
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('保存失败：存储不可用'); } }
-
 /* ========== 工具 ========== */
 const $ = id => document.getElementById(id);
-const DAY = 86400000;
 const pad = n => String(n).padStart(2,'0');
 const dkey = d => { d = new Date(d); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtDate = t => { const d=new Date(t); return `${d.getMonth()+1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2000); }
-function streakMs(){ return Math.max(0, Date.now() - S.startTime); }
-function streakDays(){ return Math.floor(streakMs()/DAY); }
-function bestDays(){ return Math.floor(Math.max(S.best, streakMs())/DAY); }
+const WEEK = '日一二三四五六';
+const fmtYMD = d => `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+const parseD = s => { const [y,m,d] = String(s).split('-').map(Number); return new Date(y, m-1, d); };
+const midnight = t => { const d = new Date(t); d.setHours(0,0,0,0); return d; };
+const daysBetween = (a,b) => Math.round((midnight(b) - midnight(a)) / DAY);
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const clamp01 = x => Math.max(0, Math.min(1, x));
+function sameDayInYear(m, d, y){ return new Date(y, m, Math.min(d, new Date(y, m+1, 0).getDate())); } // 2/29 在平年取 2/28
+function nextOccur(dateStr, from){
+  const o = parseD(dateStr), t = midnight(from);
+  let c = sameDayInYear(o.getMonth(), o.getDate(), t.getFullYear());
+  if(c < t) c = sameDayInYear(o.getMonth(), o.getDate(), t.getFullYear()+1);
+  return c;
+}
+function ymdDiff(a, b){
+  let y = b.getFullYear()-a.getFullYear(), m = b.getMonth()-a.getMonth(), d = b.getDate()-a.getDate();
+  if(d < 0){ m--; d += new Date(b.getFullYear(), b.getMonth(), 0).getDate(); }
+  if(m < 0){ y--; m += 12; }
+  return [y, m, d];
+}
+function ymdText([y,m,d]){ return (y?`${y}年`:'') + (m||y?`${m}个月`:'') + `${d}天`; }
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+function uid(){ return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function daySeed(){ const d=new Date(); return d.getFullYear()*400 + d.getMonth()*32 + d.getDate(); }
+const localISO = t => new Date(t - new Date(t).getTimezoneOffset()*60000).toISOString();
 
-function checkinStreak(){
+/* ========== 数据 ========== */
+function newQuit(k, over){
+  const t = QUIT_TPL.find(x=>x.k===k) || QUIT_TPL[QUIT_TPL.length-1];
+  return Object.assign({id:uid(), type:'quit', tpl:t.k, name:t.name, emoji:t.emoji, pinned:false, created:Date.now(),
+    startTime:Date.now(), best:0, checkins:{}, relapses:[], urges:0,
+    reasons:[...t.reasons], triggers:[...t.triggers], tasks:[...t.tasks]}, over || {});
+}
+function newAnniv(t){ return {id:uid(), type:'anniv', name:t.name, emoji:t.emoji, pinned:false, created:Date.now(), date:'', countFirst:true}; }
+function newCountdown(t){
+  let date = '';
+  if(t.md){ const n = new Date(); const c = new Date(n.getFullYear(), t.md[0], t.md[1]); date = dkey(midnight(n) > c ? new Date(n.getFullYear()+1, t.md[0], t.md[1]) : c); }
+  return {id:uid(), type:'countdown', name:t.name, emoji:t.emoji, pinned:false, created:Date.now(), date, yearly:!!t.yearly};
+}
+function fromV1(o){
+  return newQuit('nofap', {startTime:o.startTime, created:o.startTime, best:o.best||0, checkins:o.checkins||{},
+    relapses:o.relapses||[], urges:o.urges||0, reasons:Array.isArray(o.reasons)?o.reasons:QUIT_TPL[0].reasons.slice()});
+}
+function fixItem(it){
+  it.pinned = !!it.pinned; it.created = it.created || Date.now(); it.emoji = it.emoji || '⭐'; it.name = it.name || TYPE_NAME[it.type];
+  if(it.type === 'quit'){
+    if(typeof it.startTime !== 'number') it.startTime = Date.now();
+    it.best = it.best||0; it.urges = it.urges||0;
+    it.checkins = it.checkins||{}; it.relapses = it.relapses||[]; it.reasons = it.reasons||[];
+    if(!Array.isArray(it.triggers) || !it.triggers.length) it.triggers = GENERIC.triggers.slice();
+    if(!Array.isArray(it.tasks) || !it.tasks.length) it.tasks = GENERIC.tasks.slice();
+  }
+  return it;
+}
+const fixNotes = a => (Array.isArray(a) ? a : []).filter(n=>n && n.id && typeof n.t==='number' && typeof n.text==='string');
+function normalize(d){
+  if(d && Array.isArray(d.items)) return {v:2, sosId:d.sosId||null,
+    items:d.items.filter(x=>x && x.id && TYPE_NAME[x.type]).map(fixItem), notes:fixNotes(d.notes),
+    deleted:(d.deleted && typeof d.deleted==='object') ? d.deleted : {}};
+  if(d && typeof d.startTime === 'number') return {v:2, sosId:null, items:[fromV1(d)], notes:[], deleted:{}};
+  return null;
+}
+function load(){
+  try{ const s = normalize(JSON.parse(localStorage.getItem(KEY))); if(s) return s; }catch(e){}
+  try{ const s = normalize(JSON.parse(localStorage.getItem(OLDKEY))); if(s){ s.migrated = true; return s; } }catch(e){}
+  return {v:2, sosId:null, items:[], notes:[], deleted:{}};
+}
+let S = load();
+/* 变更追踪：每次保存时找出改动过的项目 / 碎碎念，打上修改时间 u；被删掉的记进 deleted，供多设备合并 */
+let snap = new Map(), saveSeq = 0;
+function snapStr(x){ const {u, ...r} = x; return JSON.stringify(r); }
+function resetSnap(){ snap = new Map(); for(const x of [...S.items, ...S.notes]) snap.set(x.id, snapStr(x)); }
+function stamp(){
+  const now = Date.now(), seen = new Set(); let changed = false;
+  for(const x of [...S.items, ...S.notes]){
+    seen.add(x.id); const st = snapStr(x);
+    if(snap.get(x.id) !== st){ x.u = now; snap.set(x.id, st); changed = true; }
+  }
+  for(const id of [...snap.keys()]) if(!seen.has(id)){ S.deleted[id] = now; snap.delete(id); changed = true; }
+  return changed;
+}
+resetSnap();
+function persist(){ try{ const {migrated, ...o} = S; localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){ toast('保存失败：存储不可用'); } }
+function save(silent){ const ch = stamp(); persist(); if(ch){ saveSeq++; if(!silent) scheduleSync(); } }
+const getItem = id => S.items.find(i=>i.id===id);
+
+/* ---- 戒除类计算 ---- */
+const streakMs = it => Math.max(0, Date.now() - it.startTime);
+const bestDays = it => Math.floor(Math.max(it.best, streakMs(it)) / DAY);
+function checkinStreak(it){
   let n=0, d=new Date();
-  if(!S.checkins[dkey(d)]) d.setDate(d.getDate()-1); // 今天还没打卡时从昨天算
-  while(S.checkins[dkey(d)]){ n++; d.setDate(d.getDate()-1); }
+  if(!it.checkins[dkey(d)]) d.setDate(d.getDate()-1);
+  while(it.checkins[dkey(d)]){ n++; d.setDate(d.getDate()-1); }
   return n;
 }
-function relapseDays(){ const set=new Set(); S.relapses.forEach(r=>set.add(dkey(r.t))); return set; }
+const relapseDays = it => new Set(it.relapses.map(r=>dkey(r.t)));
+const recentRelapses = (it, n=7) => it.relapses.filter(r => Date.now()-r.t < n*DAY).length;
+function fmtHMS(ms){ const r = ms % DAY; return `${pad(Math.floor(r/3600000))}:${pad(Math.floor(r%3600000/60000))}:${pad(Math.floor(r%60000/1000))}`; }
+
+/* ---- 纪念日计算 ---- */
+function annivInfo(it){
+  const s = parseD(it.date), today = midnight(Date.now()), diff = daysBetween(s, today);
+  if(diff < 0) return {future:true, left:-diff, s};
+  const ymd = ymdDiff(s, today);
+  const nextYearN = ymd[0] + 1, nextYear = sameDayInYear(s.getMonth(), s.getDate(), s.getFullYear()+nextYearN);
+  const isAnniv = ymd[0] > 0 && ymd[1] === 0 && ymd[2] === 0;
+  return {n: diff + (it.countFirst?1:0), s, ymd, diff, nextYearN, nextYear, nextYearLeft: daysBetween(today, nextYear), isAnniv};
+}
+function annivMilestones(it, count=6){
+  const s = parseD(it.date), today = midnight(Date.now()), off = it.countFirst ? 1 : 0;
+  const cur = daysBetween(s, today) + off, out = [];
+  const ks = []; for(let k=100; k<=20000; k+=100) ks.push(k); ks.push(520, 1314); ks.sort((a,b)=>a-b);
+  for(const k of ks){ if(k < cur) continue;
+    const dt = addDays(s, k-off);
+    out.push({e: k===520?'💗':k===1314?'💞':k%1000===0?'🏆':'💯', label:`第 ${k} 天`, date:dt, left:daysBetween(today, dt)});
+    if(out.length >= count) break;
+  }
+  let yrs = 0;
+  for(let y=1; y<=120 && yrs<3; y++){
+    const dt = sameDayInYear(s.getMonth(), s.getDate(), s.getFullYear()+y), l = daysBetween(today, dt);
+    if(l >= 0){ out.push({e:'🎉', label:`${y} 周年`, date:dt, left:l}); yrs++; }
+  }
+  return out.sort((a,b)=>a.left-b.left).slice(0, count);
+}
+
+/* ---- 倒计时计算 ---- */
+function cdInfo(it){
+  const today = midnight(Date.now());
+  const target = it.yearly ? nextOccur(it.date, today) : parseD(it.date);
+  const left = daysBetween(today, target);
+  const from = it.yearly ? sameDayInYear(target.getMonth(), target.getDate(), target.getFullYear()-1) : midnight(Math.min(it.created, target.getTime()));
+  const span = daysBetween(from, target);
+  return {target, left, from, progress: span>0 ? clamp01(daysBetween(from, today)/span) : 1};
+}
 
 /* ========== 首页 ========== */
-let lastDays = -1;
-function tick(){
-  const ms = streakMs(), days = Math.floor(ms/DAY), rem = ms%DAY;
-  $('dNum').textContent = days;
-  $('hms').textContent = `${pad(Math.floor(rem/3600000))}:${pad(Math.floor(rem%3600000/60000))}:${pad(Math.floor(rem%60000/1000))}`;
-  const next = MILESTONES.find(m=>m.d>days) || {d:days+1,n:''};
+function sortItems(list){ return list.slice().sort((a,b)=> (b.pinned-a.pinned) || (a.created-b.created)); }
+function cardHTML(it){
+  const c = TYPE_COLOR[it.type], pin = it.pinned ? '📌 ' : '';
+  let sub = '', num = '', extra = '';
+  if(it.type === 'quit'){
+    const ms = streakMs(it), rr = recentRelapses(it), done = !!it.checkins[dkey(Date.now())];
+    sub = rr ? `<div class="sub warn">⚠️ 近 7 天破戒 ${rr} 次，稳住！</div>`
+             : `<div class="sub">最长 ${bestDays(it)} 天 · 连续打卡 ${checkinStreak(it)} 天</div>`;
+    extra = `<button class="qk${done?' done':''}" onclick="event.stopPropagation();openCheckin('${it.id}')">${done?'✓ 今日已打卡':'今日打卡'}</button>`;
+    num = `<div class="pre">已坚持</div><b data-days="${it.id}">${Math.floor(ms/DAY)}</b><span class="u">天</span><div class="hm" data-hms="${it.id}">${fmtHMS(ms)}</div>`;
+  } else if(it.type === 'anniv'){
+    const a = annivInfo(it);
+    if(a.future){ sub = `<div class="sub">${fmtYMD(a.s)} 开始</div>`; num = `<div class="pre">还有</div><b>${a.left}</b><span class="u">天</span>`; }
+    else {
+      sub = `<div class="sub">${a.isAnniv ? `🎉 今天是 ${a.ymd[0]} 周年纪念日！` : `${dkey(a.s).replace(/-/g,'.')} · 距 ${a.nextYearN} 周年 ${a.nextYearLeft} 天`}</div>`;
+      num = `<div class="pre">第</div><b>${a.n}</b><span class="u">天</span>`;
+    }
+  } else {
+    const d = cdInfo(it);
+    sub = `<div class="sub">${fmtYMD(d.target)} 周${WEEK[d.target.getDay()]}${it.yearly?' · 每年':''}</div>`;
+    num = d.left > 0 ? `<div class="pre">还有</div><b>${d.left}</b><span class="u">天</span>`
+        : d.left === 0 ? `<b>今天</b><div class="hm">🎉 就是今天</div>`
+        : `<div class="pre">已过</div><b>${-d.left}</b><span class="u">天</span>`;
+  }
+  return `<div class="icard" style="--c:${c}" onclick="openDetail('${it.id}')">
+    <div class="emo">${esc(it.emoji)}</div>
+    <div class="mid"><div class="nm">${pin}${esc(it.name)}</div>${sub}${extra}</div>
+    <div class="num">${num}</div></div>`;
+}
+function renderHome(){
+  const d = new Date();
+  const quits = S.items.filter(i=>i.type==='quit'), todo = quits.filter(i=>!i.checkins[dkey(d)]).length;
+  $('todayStr').textContent = `${d.getMonth()+1}月${d.getDate()}日 周${WEEK[d.getDay()]}` + (quits.length ? (todo ? ` · 还有 ${todo} 项未打卡` : ' · 今日已全部打卡 ✓') : '');
+  if(!S.items.length){
+    $('homeList').innerHTML = `<div class="card empty"><div class="e">✨</div><p class="muted" style="line-height:1.7">还没有项目<br>可以记录要戒掉的习惯、纪念日或倒计时</p><button class="btn btn-primary" onclick="openAdd()">＋ 新建第一个</button></div>`;
+    return;
+  }
+  const secs = [['quit','🛡️ 戒除 · 警示'],['anniv','💕 纪念日'],['countdown','⏳ 倒计时']];
+  const pinned = sortItems(S.items.filter(i=>i.pinned));
+  let h = pinned.length ? `<div class="sec">📌 置顶</div>` + pinned.map(cardHTML).join('') : '';
+  for(const [t, title] of secs){
+    const list = sortItems(S.items.filter(i=>i.type===t && !i.pinned));
+    if(list.length) h += `<div class="sec">${title}</div>` + list.map(cardHTML).join('');
+  }
+  $('homeList').innerHTML = h;
+}
+
+/* ========== 详情 ========== */
+let detailId = null, calY, calM, curPage = 'home';
+function openDetail(id){ detailId = id; const d = new Date(); calY = d.getFullYear(); calM = d.getMonth(); go('detail'); }
+function detailHead(it){
+  return `<div class="dhead"><button onclick="go('home')">‹ 返回</button><button onclick="openEdit('${it.id}')">编辑</button></div>`;
+}
+function renderDetail(){
+  const it = getItem(detailId);
+  if(!it){ go('home'); return; }
+  const box = $('detailBody'); box.style.setProperty('--c', TYPE_COLOR[it.type]);
+  if(it.type === 'quit') box.innerHTML = quitDetail(it);
+  else if(it.type === 'anniv') box.innerHTML = annivDetail(it);
+  else box.innerHTML = cdDetail(it);
+  if(it.type === 'quit'){ tickRing(it); renderCal(it); }
+}
+
+function quitDetail(it){
+  const today = it.checkins[dkey(Date.now())], q = QUOTES[(daySeed() + it.name.length) % QUOTES.length];
+  const rr = recentRelapses(it);
+  return detailHead(it) + `
+  <h1>${esc(it.emoji)} ${esc(it.name)}</h1>
+  ${rr ? `<div class="card" style="border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)"><b style="color:var(--warn)">⚠️ 警示</b><div class="muted" style="margin-top:6px;line-height:1.6">近 7 天已经破戒 ${rr} 次。${triggerTop(it) ? `最常见的诱因是「${esc(triggerTop(it)[0])}」，提前防范它。` : '找到诱因，提前防范。'}</div></div>` : ''}
+  <div class="card hero">
+    <div class="muted">已坚持</div>
+    <div class="ring">
+      <svg width="230" height="230" viewBox="0 0 230 230">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6ee7b7"/><stop offset="1" stop-color="#10b981"/></linearGradient></defs>
+        <circle cx="115" cy="115" r="100" fill="none" stroke="#252a34" stroke-width="14"/>
+        <circle id="ringBar" cx="115" cy="115" r="100" fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round" stroke-dasharray="628.3" stroke-dashoffset="628.3" style="transition:stroke-dashoffset .6s"/>
+      </svg>
+      <div class="center">
+        <div class="days"><span id="dNum">0</span><small>天</small></div>
+        <div class="hms" id="hms">00:00:00</div>
+        <div class="next" id="nextGoal"></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" ${today?'disabled':''} onclick="openCheckin('${it.id}')">${today ? `今日已打卡 ${today.mood ? today.mood.split(' ')[0] : '✓'}` : '今日打卡'}</button>
+  </div>
+  <div class="grid3" style="margin-bottom:14px">
+    <div class="stat"><b>${bestDays(it)}</b><span>最长记录(天)</span></div>
+    <div class="stat"><b>${checkinStreak(it)}</b><span>连续打卡</span></div>
+    <div class="stat"><b>${Object.keys(it.checkins).length}</b><span>累计打卡</span></div>
+  </div>
+  <button class="btn btn-ghost" style="margin-bottom:14px;color:#93c5fd" onclick="openSos('${it.id}')">🆘 冲动来了？进入急救（已战胜 ${it.urges||0} 次）</button>
+  <div class="card"><h2>💬 今日一句</h2><div class="quote">${esc(q[0])}<span class="by">—— ${esc(q[1])}</span></div></div>
+  <div class="card">
+    <div class="row between"><h2 style="margin:0">🎯 我为什么要坚持</h2><button class="muted" onclick="openEdit('${it.id}')">编辑</button></div>
+    <div class="list" style="margin-top:6px">${it.reasons.length ? it.reasons.map((r,i)=>`<div class="item">${i+1}. ${esc(r)}</div>`).join('') : `<div class="item muted">还没有添加理由，点“编辑”写下你的动力。</div>`}</div>
+  </div>
+  <div class="card">
+    <div class="cal-head"><button onclick="shiftMonth(-1)">‹</button><b id="calTitle"></b><button onclick="shiftMonth(1)">›</button></div>
+    <div class="cal" id="cal"></div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>已打卡</span><span><i style="background:var(--warn)"></i>破戒</span><span><i style="border:2px solid var(--blue)"></i>今天</span></div>
+    <div class="grid2" style="margin-top:12px"><div class="stat"><b id="mOk">0</b><span>本月打卡</span></div><div class="stat"><b id="mBad">0</b><span>本月破戒</span></div></div>
+  </div>
+  <div class="card"><h2>📝 打卡日记</h2><div class="list" id="journal">${journalHTML(it)}</div></div>
+  ${relatedNotesCard(it)}
+  <div class="card"><h2>🏅 里程碑勋章</h2><div class="grid3">${MILESTONES.map(m=>`<div class="badge${bestDays(it)>=m.d?' on':''}"><div class="e">${m.e}</div><div class="n">${m.n}</div><div class="r">${m.d} 天</div></div>`).join('')}</div></div>
+  <div class="card"><h2>📉 破戒记录</h2><div class="list">${relapsesHTML(it)}</div></div>
+  <button class="btn btn-danger" onclick="openRelapse('${it.id}')">我破戒了…（重新开始）</button>`;
+}
+function tickRing(it){
+  if(!$('dNum')) return;
+  const ms = streakMs(it), days = Math.floor(ms/DAY);
+  $('dNum').textContent = days; $('hms').textContent = fmtHMS(ms);
+  const next = MILESTONES.find(m=>m.d>days) || {d:days+1, n:''};
   const prev = [...MILESTONES].reverse().find(m=>m.d<=days);
   const from = prev ? prev.d*DAY : 0, to = next.d*DAY;
-  const p = Math.min(1, (ms-from)/(to-from));
-  $('ringBar').style.strokeDashoffset = 628.3*(1-p);
+  $('ringBar').style.strokeDashoffset = 628.3 * (1 - Math.min(1, (ms-from)/(to-from)));
   $('nextGoal').textContent = `距「${next.n || next.d+'天'}」还有 ${Math.ceil((to-ms)/DAY)} 天`;
-  if(lastDays !== -1 && days > lastDays){
-    const m = MILESTONES.find(m=>m.d===days);
-    if(m){ toast(`解锁勋章 ${m.e} ${m.n}！`); confetti(); }
-    renderStats(); renderBadges();
-  }
-  lastDays = days;
 }
-function renderStats(){
-  const today = S.checkins[dkey(Date.now())];
-  const b = $('checkBtn');
-  b.disabled = !!today;
-  b.textContent = today ? `今日已打卡 ${today.mood ? today.mood.split(' ')[0] : '✓'}` : '今日打卡';
-  $('sBest').textContent = bestDays();
-  $('sStreakCk').textContent = checkinStreak();
-  $('sTotal').textContent = Object.keys(S.checkins).length;
-  const d = new Date();
-  $('todayStr').textContent = `${d.getMonth()+1}月${d.getDate()}日 周${'日一二三四五六'[d.getDay()]}`;
-  const q = QUOTES[daySeed()%QUOTES.length];
-  $('quote').innerHTML = `${esc(q[0])}<span class="by">—— ${esc(q[1])}</span>`;
-  $('reasonsList').innerHTML = S.reasons.length
-    ? S.reasons.map((r,i)=>`<div class="item">${i+1}. ${esc(r)}</div>`).join('')
-    : `<div class="item muted">还没有添加理由，点“编辑”写下你的动力。</div>`;
-}
-
-/* 打卡 */
-let selMood = null, selTrig = null;
-function chips(el, arr, getSel, setSel){
-  el.innerHTML = arr.map(x=>`<button class="chip${getSel()===x?' on':''}">${esc(x)}</button>`).join('');
-  [...el.children].forEach((c,i)=>c.onclick=()=>{ setSel(getSel()===arr[i]?null:arr[i]); chips(el,arr,getSel,setSel); });
-}
-function openSheet(id){ $(id).classList.add('show'); }
-function closeSheet(el){ el.classList.remove('show'); }
-function openCheckin(){
-  if(S.checkins[dkey(Date.now())]) return;
-  selMood = MOODS[1]; $('ckNote').value='';
-  chips($('moodChips'), MOODS, ()=>selMood, v=>selMood=v);
-  openSheet('mCheck');
-}
-function doCheckin(){
-  S.checkins[dkey(Date.now())] = {t:Date.now(), mood:selMood, note:$('ckNote').value.trim()};
-  save(); closeSheet($('mCheck')); renderAll();
-  toast(`打卡成功！连续打卡 ${checkinStreak()} 天`); confetti();
-}
-
-/* 破戒 */
-function openRelapse(){
-  selTrig=null; $('rlNote').value='';
-  chips($('trigChips'), TRIGGERS, ()=>selTrig, v=>selTrig=v);
-  openSheet('mRelapse');
-}
-function doRelapse(){
-  const ms = streakMs();
-  S.best = Math.max(S.best, ms);
-  S.relapses.unshift({t:Date.now(), trigger:selTrig, note:$('rlNote').value.trim(), streak:ms});
-  S.startTime = Date.now();
-  save(); closeSheet($('mRelapse')); lastDays=-1; renderAll(); tick();
-  toast('已重新开始计时，加油！');
-}
-
-/* 理由 / 开始时间 */
-function openReasons(){ $('reasonsInput').value = S.reasons.join('\n'); openSheet('mReasons'); }
-function saveReasons(){ S.reasons = $('reasonsInput').value.split('\n').map(s=>s.trim()).filter(Boolean); save(); closeSheet($('mReasons')); renderStats(); toast('已保存'); }
-function openStart(){
-  const d = new Date(S.startTime - new Date().getTimezoneOffset()*60000);
-  $('startInput').value = d.toISOString().slice(0,16);
-  $('startInput').max = new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
-  openSheet('mStart');
-}
-function saveStart(){
-  const v = $('startInput').value; if(!v) return;
-  const t = new Date(v).getTime();
-  if(isNaN(t) || t > Date.now()){ toast('开始时间不能晚于现在'); return; }
-  S.startTime = t; save(); closeSheet($('mStart')); lastDays=-1; renderAll(); tick(); toast('开始时间已更新');
-}
-
-/* ========== 日历 ========== */
-let calY, calM;
-(function(){ const d=new Date(); calY=d.getFullYear(); calM=d.getMonth(); })();
-function shiftMonth(n){ calM+=n; if(calM<0){calM=11;calY--;} if(calM>11){calM=0;calY++;} renderCal(); }
-function renderCal(){
+function shiftMonth(n){ calM+=n; if(calM<0){calM=11;calY--;} if(calM>11){calM=0;calY++;} const it=getItem(detailId); if(it) renderCal(it); }
+function renderCal(it){
+  if(!$('cal')) return;
   $('calTitle').textContent = `${calY}年${calM+1}月`;
   const first = new Date(calY,calM,1).getDay(), total = new Date(calY,calM+1,0).getDate();
-  const bad = relapseDays(), todayK = dkey(Date.now()), now = Date.now();
-  let h = '日一二三四五六'.split('').map(w=>`<div class="wd">${w}</div>`).join('');
+  const bad = relapseDays(it), todayK = dkey(Date.now()), now = Date.now();
+  let h = WEEK.split('').map(w=>`<div class="wd">${w}</div>`).join('');
   for(let i=0;i<first;i++) h += '<div class="d empty"></div>';
   let ok=0, nb=0;
   for(let d=1; d<=total; d++){
-    const k = `${calY}-${pad(calM+1)}-${pad(d)}`, ck = S.checkins[k];
+    const k = `${calY}-${pad(calM+1)}-${pad(d)}`, ck = it.checkins[k];
     let cls = 'd';
     if(bad.has(k)){ cls+=' bad'; nb++; } else if(ck){ cls+=' ok'; }
     if(ck) ok++;
@@ -492,25 +826,218 @@ function renderCal(){
     h += `<div class="${cls}">${d}${mark?`<span class="m">${mark}</span>`:''}</div>`;
   }
   $('cal').innerHTML = h; $('mOk').textContent = ok; $('mBad').textContent = nb;
-
-  const entries = Object.entries(S.checkins).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,30);
-  $('journal').innerHTML = entries.length ? entries.map(([k,v])=>
+}
+function journalHTML(it){
+  const entries = Object.entries(it.checkins).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,30);
+  return entries.length ? entries.map(([k,v])=>
     `<div class="item"><div class="row between"><b>${k.slice(5).replace('-','月')}日</b><span class="tag">${esc(v.mood||'已打卡')}</span></div>${v.note?`<div class="muted" style="margin-top:6px;line-height:1.6;-webkit-user-select:text;user-select:text">${esc(v.note)}</div>`:''}</div>`
-  ).join('') : '<div class="item muted">还没有打卡记录，去首页完成第一次打卡吧。</div>';
+  ).join('') : '<div class="item muted">还没有打卡记录，完成第一次打卡吧。</div>';
+}
+function triggerTop(it){
+  const c = {}; it.relapses.forEach(r=>{ if(r.trigger) c[r.trigger]=(c[r.trigger]||0)+1; });
+  return Object.entries(c).sort((a,b)=>b[1]-a[1])[0];
+}
+function relapsesHTML(it){
+  if(!it.relapses.length) return '<div class="item muted">暂无破戒记录，继续保持 💪</div>';
+  const top = triggerTop(it);
+  return it.relapses.slice(0,50).map(r=>
+    `<div class="item"><div class="row between"><b>${fmtDate(r.t)}</b><span class="muted">坚持了 ${(r.streak/DAY).toFixed(1)} 天</span></div>
+     <div style="margin-top:6px">${r.trigger?`<span class="tag">${esc(r.trigger)}</span>`:''}${r.note?`<span class="muted">${esc(r.note)}</span>`:''}</div></div>`
+  ).join('') + (top ? `<div class="item muted">⚠️ 你最常见的诱因是「${esc(top[0])}」（${top[1]} 次），试着提前为它做好准备。</div>` : '');
+}
+
+function annivDetail(it){
+  const a = annivInfo(it);
+  if(a.future) return detailHead(it) + `
+    <div class="card hero"><div class="bigemo">${esc(it.emoji)}</div><div class="muted">${esc(it.name)}</div>
+      <div class="days" style="color:var(--c);margin:14px 0 10px"><span class="pf">还有</span>${a.left}<small>天</small></div>
+      <div class="muted">${fmtYMD(a.s)}（周${WEEK[a.s.getDay()]}）开始</div></div>` + relatedNotesCard(it);
+  const weeks = Math.floor(a.diff/7);
+  const ms = annivMilestones(it);
+  return detailHead(it) + `
+  <div class="card hero">
+    <div class="bigemo">${esc(it.emoji)}</div><div class="muted">${esc(it.name)}</div>
+    <div class="days" style="color:var(--c);margin:14px 0 10px"><span class="pf">第</span>${a.n}<small>天</small></div>
+    <div class="muted">从 ${fmtYMD(a.s)}（周${WEEK[a.s.getDay()]}）开始</div>
+    ${a.isAnniv ? `<div style="margin-top:12px;font-size:17px;font-weight:600">🎉 今天是 ${a.ymd[0]} 周年纪念日！</div>` : ''}
+  </div>
+  <div class="grid3" style="margin-bottom:14px">
+    <div class="stat s"><b>${ymdText(a.ymd)}</b><span>已经走过</span></div>
+    <div class="stat s"><b>${weeks} 周</b><span>约合</span></div>
+    <div class="stat s"><b>${a.nextYearLeft} 天</b><span>距 ${a.nextYearN} 周年</span></div>
+  </div>
+  <div class="card"><h2>🗓 即将到来</h2>
+    ${ms.map(m=>`<div class="ms"><div class="e">${m.e}</div><div class="t"><b>${m.label}</b><div class="muted">${fmtYMD(m.date)} 周${WEEK[m.date.getDay()]}</div></div><div class="lf">${m.left===0?'就是今天':`还有 ${m.left} 天`}</div></div>`).join('')}
+  </div>
+  ${relatedNotesCard(it)}
+  <p class="muted" style="text-align:center">${it.countFirst ? '起始日当天算作第 1 天' : '起始日当天算作第 0 天'} · 可在“编辑”里修改</p>`;
+}
+
+function cdDetail(it){
+  const d = cdInfo(it), hours = Math.max(0, Math.ceil((d.target.getTime() - Date.now())/3600000));
+  const big = d.left > 0 ? `<span class="pf">还有</span>${d.left}<small>天</small>`
+            : d.left === 0 ? `🎉 就是今天` : `<span class="pf">已过</span>${-d.left}<small>天</small>`;
+  return detailHead(it) + `
+  <div class="card hero">
+    <div class="bigemo">${esc(it.emoji)}</div><div class="muted">距离 ${esc(it.name)}</div>
+    <div class="days" style="color:var(--c);margin:14px 0 10px">${big}</div>
+    <div class="muted">${fmtYMD(d.target)}（周${WEEK[d.target.getDay()]}）${it.yearly?' · 每年重复':''}</div>
+  </div>
+  ${d.left >= 0 ? `<div class="grid3" style="margin-bottom:14px">
+    <div class="stat s"><b>${Math.floor(d.left/7)} 周 ${d.left%7} 天</b><span>约合</span></div>
+    <div class="stat s"><b>${hours}</b><span>小时</span></div>
+    <div class="stat s"><b>${d.target.getFullYear()}</b><span>目标年份</span></div>
+  </div>
+  <div class="card"><h2>⏱ 进度</h2>
+    <div class="pbar"><i style="width:${(d.progress*100).toFixed(1)}%"></i></div>
+    <div class="row between muted"><span>${it.yearly?'上一次':'创建于'} ${fmtYMD(d.from)}</span><span>${(d.progress*100).toFixed(1)}%</span></div>
+  </div>` : ''}
+  ${relatedNotesCard(it)}`;
+}
+
+/* ========== 新建 / 编辑 ========== */
+function openAdd(){
+  const chip = (t, i, label) => `<button class="chip" onclick="pickTpl('${t}',${i})">${label}</button>`;
+  $('addBody').innerHTML = `
+  <div class="tpl-sec"><div class="h">🛡️ 戒除 · 警示<small>记录坚持天数，破戒重新计时</small></div>
+    <div class="chips">${QUIT_TPL.map((t,i)=>chip('quit',i, t.k==='custom' ? '⭐ 自定义' : `${t.emoji} ${t.name}`)).join('')}</div></div>
+  <div class="tpl-sec"><div class="h">💕 纪念日<small>从某天起已经多少天</small></div>
+    <div class="chips">${ANNIV_TPL.map((t,i)=>chip('anniv',i, `${t.emoji} ${t.label||t.name}`)).join('')}</div></div>
+  <div class="tpl-sec"><div class="h">⏳ 倒计时<small>距离某天还有多少天</small></div>
+    <div class="chips">${CD_TPL.map((t,i)=>chip('countdown',i, `${t.emoji} ${t.label||t.name}`)).join('')}</div></div>`;
+  openSheet('mAdd');
+}
+function pickTpl(type, i){
+  closeSheet($('mAdd'));
+  const it = type==='quit' ? newQuit(QUIT_TPL[i].k) : type==='anniv' ? newAnniv(ANNIV_TPL[i]) : newCountdown(CD_TPL[i]);
+  editing = {isNew:true, d:it};
+  renderEdit(); setTimeout(()=>openSheet('mEdit'), 120);
+}
+let editing = null;
+function openEdit(id){
+  const it = getItem(id); if(!it) return;
+  editing = {isNew:false, d:JSON.parse(JSON.stringify(it))};
+  renderEdit(); openSheet('mEdit');
+}
+const sw = (id, on, label, hint) => `<div class="opt"><div>${label}${hint?`<div class="hint" style="margin:2px 0 0">${hint}</div>`:''}</div><label class="sw"><input type="checkbox" id="${id}" ${on?'checked':''}><span></span></label></div>`;
+function renderEdit(){
+  const d = editing.d;
+  let h = `<h2>${editing.isNew?'新建':'编辑'} · ${TYPE_NAME[d.type]}</h2>
+  <label class="l" style="margin-top:0">图标</label>
+  <div class="row" style="gap:8px"><input type="text" id="eEmoji" value="${esc(d.emoji)}" style="width:58px;text-align:center;font-size:22px;padding:8px;flex:none" maxlength="8">
+    <div class="emo-row">${EMOJIS[d.type].map(e=>`<button class="emo-b" onclick="$('eEmoji').value='${e}'">${e}</button>`).join('')}</div></div>
+  <label class="l">名称</label>
+  <input type="text" id="eName" value="${esc(d.name)}" maxlength="24" placeholder="${d.type==='quit'?'例如：戒扣痘痘':d.type==='anniv'?'例如：和女友在一起':'例如：元旦'}">`;
+  if(d.type === 'quit'){
+    h += `<label class="l">开始时间</label>
+    <input type="datetime-local" id="eStart" value="${localISO(d.startTime).slice(0,16)}" max="${localISO(Date.now()).slice(0,16)}">
+    <div class="hint">如果在用本应用之前就已经开始坚持，可以往前改。</div>
+    <label class="l">我为什么要坚持（每行一条，冲动时提醒你）</label>
+    <textarea id="eReasons" style="min-height:96px">${esc(d.reasons.join('\n'))}</textarea>
+    <label class="l">常见诱因（破戒时选择，用逗号或顿号分隔）</label>
+    <input type="text" id="eTrig" value="${esc(d.triggers.join('、'))}">
+    <label class="l">急救清单（每行一件立刻能做的事）</label>
+    <textarea id="eTasks" style="min-height:96px">${esc(d.tasks.join('\n'))}</textarea>`;
+  } else if(d.type === 'anniv'){
+    h += `<label class="l">开始日期</label><input type="date" id="eDate" value="${esc(d.date)}" max="2200-12-31">
+    <div style="margin-top:6px">${sw('eFirst', d.countFirst, '起始日当天算第 1 天', '关闭则当天算第 0 天（像“满 N 天”）')}</div>`;
+  } else {
+    h += `<label class="l">目标日期</label><input type="date" id="eDate" value="${esc(d.date)}" max="2200-12-31">
+    <div style="margin-top:6px">${sw('eYearly', d.yearly, '每年重复', '适合生日、节日；过了会自动算下一年')}</div>`;
+  }
+  h += sw('ePin', d.pinned, '置顶显示');
+  h += `<button class="btn btn-primary" style="margin-top:18px" onclick="saveEdit()">${editing.isNew?'添加':'保存'}</button>`;
+  if(!editing.isNew) h += `<button class="btn btn-danger" style="margin-top:10px" onclick="deleteItem()">删除这个项目</button>`;
+  $('editBody').innerHTML = h;
+}
+function saveEdit(){
+  const d = editing.d;
+  const name = $('eName').value.trim(); if(!name){ toast('请填写名称'); return; }
+  d.name = name; d.emoji = $('eEmoji').value.trim() || EMOJIS[d.type][0]; d.pinned = $('ePin').checked;
+  if(d.type === 'quit'){
+    const v = $('eStart').value, t = v ? new Date(v).getTime() : NaN;
+    if(isNaN(t) || t > Date.now()+60000){ toast('开始时间不能晚于现在'); return; }
+    if(t !== d.startTime){ d.startTime = Math.min(t, Date.now()); delete lastDays[d.id]; }
+    const lines = s => s.split('\n').map(x=>x.trim()).filter(Boolean);
+    d.reasons = lines($('eReasons').value);
+    const tr = $('eTrig').value.split(/[,，、;；\s]+/).map(x=>x.trim()).filter(Boolean);
+    d.triggers = tr.length ? tr : GENERIC.triggers.slice();
+    const tk = lines($('eTasks').value); d.tasks = tk.length ? tk : GENERIC.tasks.slice();
+  } else {
+    const v = $('eDate').value; if(!v){ toast('请选择日期'); return; }
+    d.date = v;
+    if(d.type === 'anniv') d.countFirst = $('eFirst').checked; else d.yearly = $('eYearly').checked;
+  }
+  if(editing.isNew) S.items.push(d);
+  else { const i = S.items.findIndex(x=>x.id===d.id); if(i>=0) S.items[i] = d; }
+  save(); closeSheet($('mEdit'));
+  if(editing.isNew){ toast(`已添加 ${d.emoji} ${d.name}`); openDetail(d.id); } else { renderAll(); toast('已保存'); }
+  editing = null;
+}
+function deleteItem(){
+  const d = editing.d;
+  if(!confirm(`确定删除「${d.name}」吗？相关记录会一起删除，无法恢复。`)) return;
+  S.items = S.items.filter(x=>x.id!==d.id); if(S.sosId===d.id) S.sosId=null;
+  save(); closeSheet($('mEdit')); editing=null; go('home'); toast('已删除');
+}
+
+/* ========== 打卡 / 破戒 ========== */
+let ckId = null, selMood = null, selTrig = null;
+function chips(el, arr, getSel, setSel){
+  el.innerHTML = arr.map(x=>`<button class="chip${getSel()===x?' on':''}">${esc(x)}</button>`).join('');
+  [...el.children].forEach((c,i)=>c.onclick=()=>{ setSel(getSel()===arr[i]?null:arr[i]); chips(el,arr,getSel,setSel); });
+}
+function openSheet(id){ $(id).classList.add('show'); }
+function closeSheet(el){ el.classList.remove('show'); }
+function openCheckin(id){
+  const it = getItem(id); if(!it || it.checkins[dkey(Date.now())]) return;
+  ckId = id; selMood = MOODS[1]; $('ckNote').value = '';
+  $('ckTitle').textContent = `✅ ${it.emoji} ${it.name} · 今日打卡`;
+  chips($('moodChips'), MOODS, ()=>selMood, v=>selMood=v);
+  openSheet('mCheck');
+}
+function doCheckin(){
+  const it = getItem(ckId); if(!it) return;
+  it.checkins[dkey(Date.now())] = {t:Date.now(), mood:selMood, note:$('ckNote').value.trim()};
+  save(); closeSheet($('mCheck')); renderAll();
+  toast(`打卡成功！${it.name} 连续打卡 ${checkinStreak(it)} 天`); confetti();
+}
+function openRelapse(id){
+  const it = getItem(id); if(!it) return;
+  ckId = id; selTrig = null; $('rlNote').value = '';
+  chips($('trigChips'), it.triggers, ()=>selTrig, v=>selTrig=v);
+  openSheet('mRelapse');
+}
+function doRelapse(){
+  const it = getItem(ckId); if(!it) return;
+  const ms = streakMs(it);
+  it.best = Math.max(it.best, ms);
+  it.relapses.unshift({t:Date.now(), trigger:selTrig, note:$('rlNote').value.trim(), streak:ms});
+  it.startTime = Date.now(); delete lastDays[it.id];
+  save(); closeSheet($('mRelapse')); renderAll();
+  toast('已重新开始计时，加油！');
 }
 
 /* ========== 急救 ========== */
+const sosItems = () => sortItems(S.items.filter(i=>i.type==='quit'));
+function sosItem(){ const l = sosItems(); return l.find(i=>i.id===S.sosId) || l[0] || null; }
+function openSos(id){ S.sosId = id; save(); doneTasks.clear(); go('sos'); newSosQuote(); }
+function pickSos(id){ S.sosId = id; save(); doneTasks.clear(); renderSos(); newSosQuote(); }
+function renderSos(){
+  const l = sosItems(), it = sosItem();
+  $('sosEmpty').style.display = it ? 'none' : 'block';
+  $('sosMain').style.display = it ? 'block' : 'none';
+  $('sosPick').innerHTML = l.length > 1 ? l.map(i=>`<button class="chip${i===it?' on':''}" onclick="pickSos('${i.id}')">${esc(i.emoji+' '+i.name)}</button>`).join('') : '';
+  if(!it) return;
+  renderTasks(); $('urgeCount').textContent = `「${it.name}」累计战胜冲动 ${it.urges||0} 次`;
+}
 const PHASES = [['吸气',1],['屏息',1],['呼气',.55],['屏息',.55]];
 let breathing = null, bStart = 0;
 function toggleBreath(){
   if(breathing){ stopBreath(); return; }
   bStart = Date.now(); let i = 0, sec = 4;
   const orb=$('orb'), txt=$('breathTxt');
-  const step = () => {
-    const [name, scale] = PHASES[i%4];
-    orb.style.transform = `scale(${scale})`;
-    sec = 4; txt.innerHTML = `${name}<small>${sec}</small>`;
-  };
+  const step = () => { const [name, scale] = PHASES[i%4]; orb.style.transform = `scale(${scale})`; sec = 4; txt.innerHTML = `${name}<small>${sec}</small>`; };
   step();
   breathing = setInterval(()=>{
     sec--;
@@ -528,37 +1055,490 @@ function stopBreath(){
 }
 let doneTasks = new Set();
 function renderTasks(){
-  $('tasks').innerHTML = TASKS.map((t,i)=>`<div class="task${doneTasks.has(i)?' done':''}" onclick="toggleTask(${i})"><span class="ck">${doneTasks.has(i)?'✓':''}</span><span class="t">${esc(t)}</span></div>`).join('');
+  const it = sosItem(); if(!it) return;
+  $('tasks').innerHTML = it.tasks.map((t,i)=>`<div class="task${doneTasks.has(i)?' done':''}" onclick="toggleTask(${i})"><span class="ck">${doneTasks.has(i)?'✓':''}</span><span class="t">${esc(t)}</span></div>`).join('');
 }
 function toggleTask(i){ doneTasks.has(i)?doneTasks.delete(i):doneTasks.add(i); renderTasks(); }
 let sosIdx = 0;
 function newSosQuote(){
-  const pool = [...S.reasons.map(r=>[r,'我的理由']), ...QUOTES];
+  const it = sosItem(); if(!it) return;
+  const pool = [...it.reasons.map(r=>[r,'我的理由']), ...QUOTES];
   sosIdx = (sosIdx + 1 + Math.floor(Math.random()*(pool.length-1))) % pool.length;
   const q = pool[sosIdx];
   $('sosQuote').innerHTML = `${esc(q[0])}<span class="by">—— ${esc(q[1])}</span>`;
 }
-function winUrge(){ S.urges=(S.urges||0)+1; save(); renderUrge(); toast('太棒了！又一次战胜了冲动 🏆'); confetti(); doneTasks.clear(); renderTasks(); if(breathing) stopBreath(); }
-function renderUrge(){ $('urgeCount').textContent = `累计战胜冲动 ${S.urges||0} 次`; }
-
-/* ========== 成就 ========== */
-function renderBadges(){
-  const best = bestDays();
-  $('badges').innerHTML = MILESTONES.map(m=>`<div class="badge${best>=m.d?' on':''}"><div class="e">${m.e}</div><div class="n">${m.n}</div><div class="r">${m.d} 天</div></div>`).join('');
-  $('relapses').innerHTML = S.relapses.length ? S.relapses.slice(0,50).map(r=>
-    `<div class="item"><div class="row between"><b>${fmtDate(r.t)}</b><span class="muted">坚持了 ${(r.streak/DAY).toFixed(1)} 天</span></div>
-     <div style="margin-top:6px">${r.trigger?`<span class="tag">${esc(r.trigger)}</span>`:''}${r.note?`<span class="muted">${esc(r.note)}</span>`:''}</div></div>`
-  ).join('') + triggerSummary() : '<div class="item muted">暂无破戒记录，继续保持 💪</div>';
+function winUrge(){
+  const it = sosItem(); if(!it) return;
+  it.urges = (it.urges||0)+1; save(); renderAll();
+  toast('太棒了！又一次战胜了冲动 🏆'); confetti(); doneTasks.clear(); renderTasks(); if(breathing) stopBreath();
 }
-function triggerSummary(){
-  const c = {}; S.relapses.forEach(r=>{ if(r.trigger) c[r.trigger]=(c[r.trigger]||0)+1; });
-  const top = Object.entries(c).sort((a,b)=>b[1]-a[1])[0];
-  return top ? `<div class="item muted">⚠️ 你最常见的诱因是「${esc(top[0])}」（${top[1]} 次），试着提前为它做好准备。</div>` : '';
+
+/* ========== 碎碎念 ========== */
+const NMOODS = ['😄','🙂','😐','😔','😢','😡','😴','🤔','🥰','🎉','😤','🫠'];
+let nMood = null, nLink = null, noteLimit = 60, neId = null, neMood = null, neLink = null;
+function dayLabel(t){
+  const d = new Date(t), diff = daysBetween(d, Date.now());
+  const base = `${d.getMonth()+1}月${d.getDate()}日 周${WEEK[d.getDay()]}`;
+  if(diff === 0) return '今天'; if(diff === 1) return '昨天'; if(diff === 2) return '前天';
+  return d.getFullYear() === new Date().getFullYear() ? base : `${d.getFullYear()}年${base}`;
+}
+const hm = t => { const d = new Date(t); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+function moodRow(el, get, set){
+  el.innerHTML = NMOODS.map(m=>`<button class="mood-b${get()===m?' on':''}">${m}</button>`).join('');
+  [...el.children].forEach((b,i)=>b.onclick=()=>{ set(get()===NMOODS[i]?null:NMOODS[i]); moodRow(el,get,set); });
+}
+function linkRow(el, get, set){
+  const list = sortItems(S.items);
+  el.innerHTML = list.length ? list.map(i=>`<button class="chip${get()===i.id?' on':''}">${esc(i.emoji+' '+i.name)}</button>`).join('')
+    : '<span class="muted" style="padding:6px 2px">还没有项目可以关联</span>';
+  [...el.querySelectorAll('.chip')].forEach((b,k)=>b.onclick=()=>{ set(get()===list[k].id?null:list[k].id); linkRow(el,get,set); });
+}
+function toggleLinks(force){
+  const el = $('nLinks'), show = force ?? el.style.display === 'none';
+  el.style.display = show ? 'flex' : 'none';
+  if(show) linkRow(el, ()=>nLink, v=>{ nLink=v; $('nLinkBtn').classList.toggle('on', !!v); });
+}
+function onDraft(){
+  const v = $('nInput').value; $('nSend').disabled = !v.trim();
+  try{ v ? localStorage.setItem(KEY+'-draft', v) : localStorage.removeItem(KEY+'-draft'); }catch(e){}
+}
+function postNote(){
+  const text = $('nInput').value.trim(); if(!text) return;
+  S.notes.unshift({id:uid(), t:Date.now(), text, mood:nMood, itemId:nLink});
+  save();
+  $('nInput').value = ''; onDraft(); nMood = null; nLink = null;
+  $('nLinkBtn').classList.remove('on'); toggleLinks(false);
+  moodRow($('nMoods'), ()=>nMood, v=>nMood=v);
+  renderAll(); toast('记下了 💭');
+}
+function writeNoteFor(id){
+  nLink = id; go('notes'); toggleLinks(true); $('nLinkBtn').classList.add('on');
+  setTimeout(()=>$('nInput').focus(), 50);
+}
+function noteStreak(){
+  const days = new Set(S.notes.map(n=>dkey(n.t)));
+  let n = 0, d = new Date(); if(!days.has(dkey(d))) d.setDate(d.getDate()-1);
+  while(days.has(dkey(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+function hl(text, q){
+  const s = esc(text); if(!q) return s;
+  const eq = esc(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return s.replace(new RegExp(eq, 'gi'), m=>`<mark>${m}</mark>`);
+}
+function noteHTML(n, q){
+  const it = n.itemId && getItem(n.itemId);
+  return `<div class="note"><div class="top">${n.mood?`<span class="md">${n.mood}</span>`:''}<span>${hm(n.t)}</span>
+    ${it?`<span class="itag">${esc(it.emoji+' '+it.name)}</span>`:''}
+    <button class="more" onclick="openNoteEdit('${n.id}')">···</button></div>
+    <div class="tx">${hl(n.text, q)}</div></div>`;
+}
+function renderOtd(){
+  const now = new Date(), hits = [];
+  const mAgo = new Date(now.getFullYear(), now.getMonth()-1, now.getDate());
+  if(mAgo.getDate() === now.getDate()){
+    const k = dkey(mAgo), l = S.notes.filter(n=>dkey(n.t)===k);
+    if(l.length) hits.push(['一个月前的今天', l]);
+  }
+  const years = {};
+  S.notes.forEach(n=>{ const d = new Date(n.t);
+    if(d.getFullYear() < now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate()) (years[d.getFullYear()] ||= []).push(n); });
+  Object.keys(years).sort((a,b)=>b-a).forEach(y=>hits.push([`${now.getFullYear()-y} 年前的今天`, years[y]]));
+  $('otd').innerHTML = hits.length ? `<div class="card otd"><h2>📅 那年今日</h2>${hits.map(([t,l])=>
+    `<div class="muted" style="margin:4px 2px 6px">${t}</div>${l.slice(0,3).map(n=>noteHTML(n,'')).join('')}`).join('')}</div>` : '';
+}
+function renderNotes(){
+  if(!$('noteList')) return;
+  const q = $('nSearch').value.trim().toLowerCase();
+  const all = q ? S.notes.filter(n=>{ const it = n.itemId && getItem(n.itemId);
+    return n.text.toLowerCase().includes(q) || (it && it.name.toLowerCase().includes(q)); }) : S.notes.slice();
+  all.sort((a,b)=>b.t-a.t);
+  const today = S.notes.filter(n=>dkey(n.t)===dkey(Date.now())).length, st = noteStreak();
+  $('noteStat').textContent = S.notes.length ? `共 ${S.notes.length} 条${st>1?` · 连续 ${st} 天`:''}` : '';
+  $('nSend').disabled = !$('nInput').value.trim();
+  q ? $('otd').innerHTML = '' : renderOtd();
+  if(!all.length){
+    $('noteList').innerHTML = `<div class="card empty" style="margin-top:14px"><div class="e">${q?'🔍':'💭'}</div><p class="muted">${q?'没有找到相关的碎碎念':'想到什么就写什么，开心的、烦的、无聊的都行。<br>只保存在你的手机上。'}</p></div>`;
+    return;
+  }
+  let h = '', lastDay = '';
+  const counts = {}; all.forEach(n=>{ const k=dkey(n.t); counts[k]=(counts[k]||0)+1; });
+  for(const n of all.slice(0, noteLimit)){
+    const k = dkey(n.t);
+    if(k !== lastDay){ h += `<div class="nday"><span>${dayLabel(n.t)}</span><span>${counts[k]} 条</span></div>`; lastDay = k; }
+    h += noteHTML(n, q);
+  }
+  if(all.length > noteLimit) h += `<button class="btn btn-ghost" onclick="noteLimit+=100;renderNotes()">加载更早的（还有 ${all.length-noteLimit} 条）</button>`;
+  $('noteList').innerHTML = h;
+}
+function openNoteEdit(id){
+  const n = S.notes.find(x=>x.id===id); if(!n) return;
+  neId = id; neMood = n.mood || null; neLink = n.itemId && getItem(n.itemId) ? n.itemId : null;
+  $('neText').value = n.text; $('neTime').textContent = `${dayLabel(n.t)} ${hm(n.t)}`;
+  moodRow($('neMoods'), ()=>neMood, v=>neMood=v);
+  linkRow($('neLinks'), ()=>neLink, v=>neLink=v);
+  openSheet('mNote');
+}
+function saveNoteEdit(){
+  const n = S.notes.find(x=>x.id===neId); if(!n) return;
+  const text = $('neText').value.trim(); if(!text){ toast('内容不能为空，不要的话可以删除'); return; }
+  n.text = text; n.mood = neMood; n.itemId = neLink; n.edited = Date.now();
+  save(); closeSheet($('mNote')); renderAll(); toast('已保存');
+}
+function copyNote(){
+  const v = $('neText').value;
+  const done = () => toast('已复制');
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done, ()=>fallbackCopy(v));
+  else fallbackCopy(v);
+}
+function fallbackCopy(v){ const t=$('neText'); t.focus(); t.select(); try{ document.execCommand('copy'); toast('已复制'); }catch(e){ toast('复制失败，请长按文字手动复制'); } }
+function deleteNote(){
+  if(!confirm('删除这条碎碎念？')) return;
+  S.notes = S.notes.filter(x=>x.id!==neId); save(); closeSheet($('mNote')); renderAll(); toast('已删除');
+}
+function relatedNotesCard(it){
+  const l = S.notes.filter(n=>n.itemId===it.id);
+  return `<div class="card"><div class="row between"><h2 style="margin:0">💭 相关碎碎念${l.length?`（${l.length}）`:''}</h2><button class="muted" onclick="writeNoteFor('${it.id}')">＋ 写一条</button></div>
+    <div style="margin-top:10px">${l.length ? l.slice(0,3).map(n=>`<div class="muted" style="font-size:12px;margin:8px 2px 4px">${dayLabel(n.t)} ${hm(n.t)}</div>`+noteHTML(n,'')).join('')
+      + (l.length>3?`<button class="btn btn-ghost btn-sm" onclick="go('notes');$('nSearch').value=${esc(JSON.stringify(it.name))};renderNotes()">查看全部 ${l.length} 条</button>`:'')
+      : '<div class="muted">关于这件事想说点什么？写下来。</div>'}</div></div>`;
+}
+
+/* ========== 我的 ========== */
+function renderMe(){
+  const c = t => S.items.filter(i=>i.type===t).length;
+  const urges = S.items.reduce((s,i)=>s+(i.urges||0), 0);
+  $('meStats').innerHTML = `<div class="stat"><b>${c('quit')}</b><span>戒除</span></div><div class="stat"><b>${c('anniv')}</b><span>纪念日</span></div><div class="stat"><b>${c('countdown')}</b><span>倒计时</span></div>`
+    + `<div class="stat" style="grid-column:span 2"><b>${urges}</b><span>累计战胜冲动（次）</span></div><div class="stat"><b>${S.notes.length}</b><span>碎碎念</span></div>`;
+  const u = $('updCard');
+  if(latestApk){ u.style.display = 'block';
+    u.innerHTML = `<div class="row between"><div><b>🆕 有新版本 1.${latestApk.n}</b><div class="muted">当前 1.${APP_BUILD}，覆盖安装即可，数据不会丢</div></div><button class="btn btn-primary btn-sm" onclick="location.href=latestApk.url">下载</button></div>`;
+  } else u.style.display = 'none';
+  renderAccount();
+  $('meFoot').innerHTML = (isNative() ? `安卓版 1.${APP_BUILD} · ` : '') + '数据先存在本机（离线可用），联网后自动同步到云端。<br>登录同一账号的设备之间会自动同步。';
+}
+
+/* ========== 账号与同步（服务器：你 Google 账号下的 Apps Script，数据存你的 Google Drive） ========== */
+const DEFAULT_SERVER = 'https://script.google.com/macros/s/AKfycbwBlZYouzIW4BVIAoxoJZtRb2nnkqXOdiKXDOVyzwEd4TdVvsiI08AMSeBl1druKfpz/exec';   // 部署好服务器后把网页应用网址填在这里，朋友打开就能直接注册登录
+const SESS_KEY = KEY + '-session', SYNC_KEY = KEY + '-sync', SRV_KEY = KEY + '-server';
+function loadJ(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; }catch(e){ return d; } }
+function saveJ(k, v){ try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+let A = loadJ(SESS_KEY, null);                 // 登录状态 {server, token, username, admin}
+let Y = Object.assign({rev:0, dirty:false, lastOk:0, lastErr:'', owner:''}, loadJ(SYNC_KEY, {}));   // 同步状态
+const serverUrl = () => (A && A.server) || localStorage.getItem(SRV_KEY) || DEFAULT_SERVER;
+function deviceName(){
+  const ua = navigator.userAgent;
+  if(isNative()) return 'Android App';
+  if(/iphone|ipad|ipod/i.test(ua)) return 'iPhone';
+  if(/android/i.test(ua)) return 'Android 浏览器';
+  return '电脑浏览器';
+}
+const dataObj = () => ({v:2, items:S.items, notes:S.notes, deleted:S.deleted});
+async function api(action, body, server){
+  const url = server || serverUrl();
+  if(!url) throw Object.assign(new Error('还没设置服务器地址'), {code:'noserver'});
+  let r;
+  try{ r = await fetch(url, {method:'POST', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(Object.assign({action}, body || {}))}); }
+  catch(e){ throw Object.assign(new Error('连不上服务器，请检查网络'), {code:'net'}); }
+  let j; try{ j = await r.json(); }catch(e){ throw Object.assign(new Error('服务器地址不对，或脚本没有部署成“任何人可访问”的网页应用'), {code:'bad'}); }
+  if(!j.ok) throw Object.assign(new Error(j.error || '未知错误'), {code:j.code || ''});
+  return j;
+}
+
+/* ---- 合并（与服务器 Code.gs 里的 mergeData 保持一致） ---- */
+function mergeData(a, b){
+  a = a || {}; b = b || {};
+  const del = {};
+  [a.deleted || {}, b.deleted || {}].forEach(d => Object.keys(d).forEach(k => { if(!(del[k] >= d[k])) del[k] = d[k]; }));
+  const cut = Date.now() - 365*DAY;
+  Object.keys(del).forEach(k => { if(del[k] < cut) delete del[k]; });
+  const lww = (x, y) => (y.u || 0) > (x.u || 0) ? y : x;
+  function list(la, lb, fn){
+    const m = {}, order = [];
+    (la || []).forEach(x => { if(x && x.id){ if(!m[x.id]) order.push(x.id); m[x.id] = x; } });
+    (lb || []).forEach(y => { if(y && y.id){ if(!m[y.id]){ order.push(y.id); m[y.id] = y; } else m[y.id] = fn(m[y.id], y); } });
+    return order.map(id => m[id]).filter(x => !(del[x.id] >= (x.u || 0)));
+  }
+  const items = list(a.items, b.items, (x, y) => {
+    const w = lww(x, y), l = w === x ? y : x;
+    if(w.type !== 'quit' || l.type !== 'quit') return w;
+    const r = JSON.parse(JSON.stringify(w));
+    r.checkins = Object.assign({}, l.checkins || {}, w.checkins || {});
+    const wt = {}; (w.relapses || []).forEach(z => { wt[z.t] = 1; });
+    const extra = (l.relapses || []).filter(z => !wt[z.t]);
+    r.relapses = (w.relapses || []).concat(extra).sort((p, q) => q.t - p.t);
+    extra.forEach(z => { if(z.t > r.startTime) r.startTime = z.t; });
+    r.best = Math.max(w.best || 0, l.best || 0);
+    r.urges = Math.max(w.urges || 0, l.urges || 0);
+    return r;
+  });
+  return {v:2, items, notes:list(a.notes, b.notes, lww), deleted:del};
+}
+
+/* ---- 同步 ---- */
+let syncing = false, syncTimer = null;
+function scheduleSync(ms){
+  if(!A) return;
+  Y.dirty = true; saveJ(SYNC_KEY, Y);
+  clearTimeout(syncTimer); syncTimer = setTimeout(doSync, ms == null ? 2500 : ms);
+  renderSyncDot();
+}
+function applyRemote(d){
+  const n = normalize(d); if(!n) return;
+  n.sosId = S.sosId; S = n; resetSnap(); persist();
+  for(const k in lastDays) delete lastDays[k];
+  renderAll();
+}
+async function doSync(){
+  if(!A) return;
+  if(syncing){ clearTimeout(syncTimer); syncTimer = setTimeout(doSync, 1500); return; }
+  clearTimeout(syncTimer);
+  syncing = true; renderSyncDot();
+  const seq = saveSeq, push = Y.dirty;
+  try{
+    const r = await api('sync', {token:A.token, rev:Y.rev, device:deviceName(), data: push ? dataObj() : null});
+    if(r.data) applyRemote(saveSeq === seq ? r.data : mergeData(r.data, dataObj()));
+    Y.rev = r.rev; if(saveSeq === seq) Y.dirty = false;
+    Y.lastOk = Date.now(); Y.lastErr = '';
+  }catch(e){
+    Y.lastErr = e.message; Y.errCode = e.code;
+    if(e.code === 'auth') sessionExpired();
+  }
+  syncing = false; saveJ(SYNC_KEY, Y); renderSyncDot(); renderAccount();
+  if(A && Y.dirty && !Y.lastErr) syncTimer = setTimeout(doSync, 1500);
+}
+function syncFlush(){
+  // 切到后台时尽量把还没同步的改动发出去（服务器会合并，下次打开再确认一次）
+  if(!A || !Y.dirty) return;
+  const body = JSON.stringify({action:'sync', token:A.token, rev:Y.rev, device:deviceName(), data:dataObj()});
+  if(navigator.sendBeacon && body.length < 60000){ try{ if(navigator.sendBeacon(serverUrl(), new Blob([body], {type:'text/plain;charset=utf-8'}))) return; }catch(e){} }
+  doSync();
+}
+setInterval(()=>{ if(A && !document.hidden && navigator.onLine && !syncing) doSync(); }, 60000);
+function syncText(){
+  if(!A) return '';
+  if(syncing) return '⟳ 同步中…';
+  if(Y.lastErr) return Y.errCode === 'net' ? '📴 离线，联网后自动同步' : '⚠️ ' + Y.lastErr;
+  if(Y.dirty) return '• 有改动待同步';
+  return Y.lastOk ? `☁️ 已同步 ${hm(Y.lastOk)}` : '☁️ 已登录';
+}
+function renderSyncDot(){
+  const el = $('syncDot'); if(!el) return;
+  el.textContent = !A ? '' : syncing ? '⟳' : Y.lastErr ? (Y.errCode === 'net' ? '📴' : '⚠️') : Y.dirty ? '•' : '☁️';
+  el.title = syncText();
+  const t = $('accSync'); if(t) t.textContent = syncText();
+}
+
+/* ---- 登录 / 注册 ---- */
+let authMode = 'login';
+function showAuth(msg){
+  $('auth').classList.add('show');
+  authTab('login');
+  if(Y.owner && !$('aUser').value) $('aUser').value = Y.owner;
+  $('aErr').textContent = msg || '';
+  renderSrvHint();
+}
+function hideAuth(){ $('auth').classList.remove('show'); }
+function authTab(m){
+  authMode = m;
+  $('tabLogin').classList.toggle('on', m === 'login'); $('tabReg').classList.toggle('on', m === 'reg');
+  $('aInvWrap').style.display = m === 'reg' ? 'block' : 'none';
+  $('aBtn').textContent = m === 'reg' ? '注册并登录' : '登录';
+  $('aPass').autocomplete = m === 'reg' ? 'new-password' : 'current-password';
+  $('aErr').textContent = '';
+}
+function renderSrvHint(){
+  const u = serverUrl();
+  $('aSrv').textContent = u ? '服务器已设置' : '⚠️ 还没设置服务器';
+  $('aSrv').style.color = u ? 'var(--sub)' : 'var(--gold)';
+}
+async function authSubmit(){
+  const username = $('aUser').value.trim(), password = $('aPass').value, invite = $('aInv').value.trim();
+  if(!serverUrl()){ openServer(); return; }
+  if(!username || !password){ $('aErr').textContent = '请填写用户名和密码'; return; }
+  if(authMode === 'reg' && !invite){ $('aErr').textContent = '注册需要邀请码'; return; }
+  const b = $('aBtn'); b.disabled = true; const t = b.textContent; b.textContent = '请稍候…'; $('aErr').textContent = '';
+  try{
+    const r = await api(authMode === 'reg' ? 'register' : 'login', {username, password, invite});
+    $('aPass').value = '';
+    await onLoggedIn(r);
+  }catch(e){ $('aErr').textContent = e.message; }
+  b.disabled = false; b.textContent = t;
+}
+async function onLoggedIn(r){
+  const name = r.user.username, same = Y.owner && Y.owner.toLowerCase() === name.toLowerCase();
+  const hasLocal = S.items.length || S.notes.length;
+  let keep = false;
+  if(same) keep = true;                                   // 同一个账号重新登录：保留本机数据
+  else if(!Y.owner && hasLocal)                           // 登录前就有的本机数据（比如原来的戒色记录）
+    keep = confirm(`这台设备上已有 ${S.items.length} 个项目、${S.notes.length} 条碎碎念（登录前的数据）。\n\n要把它们合并到账号「${name}」吗？\n选“取消”则丢弃本机数据，只使用云端的。`);
+  if(!keep){ S = {v:2, sosId:null, items:[], notes:[], deleted:{}}; resetSnap(); persist(); }
+  A = {server:serverUrl(), token:r.token, username:name, admin:!!r.user.admin}; saveJ(SESS_KEY, A);
+  Y = {rev:0, dirty: keep && (same ? Y.dirty : !!hasLocal), lastOk:0, lastErr:'', owner:name}; saveJ(SYNC_KEY, Y);
+  hideAuth(); go('home'); toast(`欢迎，${name} 👋`);
+  await doSync();
+}
+function sessionExpired(){
+  A = null; saveJ(SESS_KEY, null); adminCache = null;
+  showAuth('登录已失效，请重新登录（本机数据还在，登录后会自动同步）');
+}
+async function logout(){
+  if(Y.dirty){
+    toast('正在同步…'); await doSync();
+    if(Y.dirty && !confirm('还有改动没能同步到云端，退出登录会丢失这些改动。仍然退出？')) return;
+  } else if(!confirm('退出登录？\n这台设备上的数据会被清除，重新登录后会从云端恢复。')) return;
+  A = null; saveJ(SESS_KEY, null); adminCache = null;
+  Y = {rev:0, dirty:false, lastOk:0, lastErr:'', owner:''}; saveJ(SYNC_KEY, Y);
+  S = {v:2, sosId:null, items:[], notes:[], deleted:{}}; resetSnap(); persist();
+  go('home'); showAuth();
+}
+
+/* ---- 服务器设置 ---- */
+function openServer(){ $('srvUrl').value = serverUrl(); $('srvMsg').textContent = ''; openSheet('mServer'); }
+async function saveServer(){
+  const url = $('srvUrl').value.trim();
+  if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){ $('srvMsg').textContent = '网址应以 https://script.google.com/ 开头、/exec 结尾'; return; }
+  $('srvMsg').textContent = '正在连接…';
+  try{
+    const r = await api('ping', {}, url);
+    if(r.app !== 'zilv') throw new Error('这不是自律打卡的服务器');
+    localStorage.setItem(SRV_KEY, url);
+    $('srvMsg').textContent = r.setup ? '✅ 连接成功！还没有管理员：请切到「注册」，用脚本里的 SETUP_CODE 当邀请码注册第一个账号。' : '✅ 连接成功';
+    renderSrvHint();
+    if(r.setup) authTab('reg');
+    setTimeout(()=>closeSheet($('mServer')), r.setup ? 2600 : 900);
+  }catch(e){ $('srvMsg').textContent = '连接失败：' + e.message; }
+}
+
+/* ---- 我的：账号卡片 / 管理员 ---- */
+let adminCache = null, adminLoading = false;
+function renderAccount(){
+  const el = $('accCard'); if(!el) return;
+  if(!A){ el.innerHTML = `<div class="row between"><b>未登录</b><button class="btn btn-primary btn-sm" onclick="showAuth()">登录</button></div>`; $('adminCard').style.display = 'none'; return; }
+  el.innerHTML = `<div class="row between"><div class="row"><div class="avatar">${esc(A.username.slice(0,1).toUpperCase())}</div>
+      <div><b style="font-size:17px">${esc(A.username)}</b>${A.admin?' <span class="tag" style="background:rgba(251,191,36,.15);color:var(--gold)">管理员</span>':''}
+      <div class="muted" id="accSync" style="margin-top:3px">${esc(syncText())}</div></div></div></div>
+    <div class="grid3" style="margin-top:14px">
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="manualSync()">立即同步</button>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="openPw()">修改密码</button>
+      <button class="btn btn-danger btn-sm" style="width:100%" onclick="logout()">退出登录</button>
+    </div>`;
+  const ad = $('adminCard');
+  if(!A.admin){ ad.style.display = 'none'; return; }
+  ad.style.display = 'block';
+  if(!adminCache && !adminLoading) loadAdmin();
+  const c = adminCache;
+  ad.innerHTML = `<div class="row between"><h2 style="margin:0">🎟 邀请码</h2><button class="btn btn-primary btn-sm" onclick="newInvite()">＋ 生成</button></div>
+    <p class="hint" style="margin-top:6px">每个邀请码只能注册一个账号。所有账号的数据都存在你的 Google Drive「自律打卡云端」文件夹里。</p>
+    <div class="list">${!c ? '<div class="item muted">加载中…</div>' : c.invites.length ? c.invites.map(v=>`<div class="item row between">
+      <div><b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:1px">${esc(v.code)}</b><div class="muted">${v.usedBy ? `已被「${esc(v.usedBy)}」使用 · ${fmtDate(v.usedAt)}` : `未使用 · ${fmtDate(v.created)} 生成`}</div></div>
+      ${v.usedBy ? '' : `<div class="row" style="gap:6px"><button class="btn btn-ghost btn-sm" onclick="copyText('${esc(v.code)}')">复制</button><button class="btn btn-danger btn-sm" onclick="delInvite('${esc(v.code)}')">删</button></div>`}</div>`).join('')
+      : '<div class="item muted">还没有邀请码</div>'}</div>
+    <div class="row between" style="margin-top:16px"><h2 style="margin:0">👥 用户${c ? `（${c.users.length}）` : ''}</h2><button class="muted" onclick="loadAdmin()">刷新</button></div>
+    <div class="list">${!c ? '' : c.users.map(u=>`<div class="item row between"><div><b>${esc(u.name)}</b>${u.admin?' <span class="tag">管理员</span>':''}
+      <div class="muted">注册 ${fmtYMD(new Date(u.created))}${u.lastSync ? ` · 最近同步 ${fmtDate(u.lastSync)}` : ' · 还没同步过'}</div></div>
+      ${u.admin ? '' : `<button class="btn btn-ghost btn-sm" onclick="resetUser('${esc(u.name)}')">重置密码</button>`}</div>`).join('')}</div>`;
+}
+async function loadAdmin(){
+  if(!A || !A.admin) return;
+  adminLoading = true;
+  try{
+    const [i, u] = await Promise.all([api('invite.list', {token:A.token}), api('admin.users', {token:A.token})]);
+    adminCache = {invites:i.invites, users:u.users};
+  }catch(e){ if(e.code === 'auth') sessionExpired(); else toast('加载失败：' + e.message); }
+  adminLoading = false; renderAccount();
+}
+async function newInvite(){
+  try{
+    const r = await api('invite.create', {token:A.token});
+    adminCache = null; loadAdmin();
+    showInfo('🎟 新邀请码', `<div style="font-size:30px;font-weight:800;letter-spacing:4px;text-align:center;font-family:ui-monospace,Menlo,monospace;margin:10px 0">${esc(r.invite.code)}</div>
+      <p class="muted" style="line-height:1.7">把邀请码和下面的说明发给朋友：<br>iPhone 用 Safari 打开网页版并添加到主屏幕；安卓下载 APK 安装。打开后点「注册」，填用户名、密码和这个邀请码。</p>`,
+      `自律打卡邀请码：${r.invite.code}\niPhone：Safari 打开 https://emlikebot.github.io/nofap-pwa/ → 分享 → 添加到主屏幕\n安卓：下载安装 https://github.com/Emlikebot/nofap-pwa/releases/latest/download/zilv.apk\n打开后点「注册」，填用户名、密码和邀请码即可。`);
+  }catch(e){ toast('生成失败：' + e.message); }
+}
+async function delInvite(code){
+  if(!confirm(`删除邀请码 ${code}？`)) return;
+  try{ await api('invite.delete', {token:A.token, code}); adminCache = null; loadAdmin(); }catch(e){ toast('删除失败：' + e.message); }
+}
+async function resetUser(name){
+  if(!confirm(`重置「${name}」的密码？\n会生成一个临时密码，对方所有设备需要用新密码重新登录。`)) return;
+  try{
+    const r = await api('admin.reset', {token:A.token, target:name});
+    showInfo('🔑 临时密码', `<p class="muted">「${esc(name)}」的新密码：</p><div style="font-size:26px;font-weight:800;letter-spacing:2px;text-align:center;font-family:ui-monospace,Menlo,monospace;margin:10px 0">${esc(r.password)}</div><p class="muted">请对方登录后在「我的 → 修改密码」里改掉。</p>`, r.password);
+  }catch(e){ toast('重置失败：' + e.message); }
+}
+async function manualSync(){ if(!A) return; await doSync(); toast(Y.lastErr ? '同步失败：' + Y.lastErr : '已同步 ☁️'); }
+function openPw(){ ['pwOld','pwNew','pwNew2'].forEach(i=>$(i).value=''); $('pwMsg').textContent=''; openSheet('mPw'); }
+async function savePw(){
+  const o = $('pwOld').value, n = $('pwNew').value;
+  if(n.length < 6){ $('pwMsg').textContent = '新密码至少 6 位'; return; }
+  if(n !== $('pwNew2').value){ $('pwMsg').textContent = '两次输入的新密码不一致'; return; }
+  $('pwMsg').textContent = '正在修改…';
+  try{ const r = await api('password', {token:A.token, old:o, password:n}); A.token = r.token; saveJ(SESS_KEY, A); closeSheet($('mPw')); toast('密码已修改，其他设备需要重新登录'); }
+  catch(e){ $('pwMsg').textContent = e.message; }
+}
+let infoCopy = '';
+function showInfo(title, html, copy){ $('infoTitle').textContent = title; $('infoBody').innerHTML = html; infoCopy = copy || ''; $('infoCopy').style.display = copy ? 'block' : 'none'; openSheet('mInfo'); }
+function copyText(t){
+  const ok = () => toast('已复制');
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, ()=>prompt('复制下面的内容：', t));
+  else prompt('复制下面的内容：', t);
+}
+
+async function copyScript(){
+  try{
+    const code = await (await fetch('google-drive/Code.gs', {cache:'no-store'})).text();
+    if(!code.includes('doPost')) throw 0;
+    if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(code); toast('脚本代码已复制'); return; }
+    throw 0;
+  }catch(e){
+    location.href = 'google-drive/Code.gs';
+  }
+}
+
+
+/* ========== 安卓原生（Capacitor） ========== */
+const NP = n => isNative() && (window[n] || null);
+function nativeSetup(){
+  if(!isNative()) return;
+  const CA = NP('capacitorApp');
+  if(CA && CA.App){
+    CA.App.addListener('backButton', ()=>{
+      const open = [...document.querySelectorAll('.mask.show')];
+      if(open.length){ closeSheet(open[open.length-1]); return; }
+      if(curPage !== 'home'){ go('home'); return; }
+      if($('auth').classList.contains('show')) { CA.App.exitApp(); return; }
+      CA.App.minimizeApp ? CA.App.minimizeApp() : CA.App.exitApp();
+    });
+    CA.App.addListener('pause', ()=>syncFlush());
+    CA.App.addListener('resume', ()=>{ renderAll(); tick(); if(A) doSync(); });
+  }
+  checkUpdate();
+}
+let latestApk = null;
+async function checkUpdate(){
+  if(!isNative()) return;
+  try{
+    const r = await fetch('https://api.github.com/repos/Emlikebot/nofap-pwa/releases/latest', {headers:{Accept:'application/vnd.github+json'}});
+    const j = await r.json(), n = Number(String(j.tag_name||'').replace('android-',''));
+    const a = (j.assets||[]).find(x=>/\.apk$/.test(x.name));
+    if(n > APP_BUILD && a){ latestApk = {n, url:a.browser_download_url}; renderMe(); toast(`有新版本 1.${n}，可在「我的」更新`); }
+  }catch(e){}
 }
 
 /* 备份 */
-function exportData(){
-  const blob = new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+async function exportData(){
+  const {migrated, ...o} = S;
+  if(isNative()){
+    const F = NP('capacitorFilesystemPluginCapacitor'), Sh = NP('capacitorShare');
+    try{
+      const r = await F.Filesystem.writeFile({path:`自律打卡备份-${dkey(Date.now())}.json`, data:JSON.stringify(o,null,2), directory:'CACHE', encoding:'utf8'});
+      await Sh.Share.share({title:'自律打卡备份', files:[r.uri]});
+    }catch(e){ if(!/cancel/i.test(String(e && e.message || e))) toast('导出失败：' + (e.message || e)); }
+    return;
+  }
+  const blob = new Blob([JSON.stringify(o,null,2)],{type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `自律打卡备份-${dkey(Date.now())}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000); toast('备份已导出');
@@ -568,43 +1548,74 @@ function importData(e){
   const r = new FileReader();
   r.onload = () => {
     try{
-      const d = JSON.parse(r.result);
-      if(!d || typeof d.startTime !== 'number') throw 0;
-      S = Object.assign(load(), d, {checkins:d.checkins||{}, relapses:d.relapses||[], reasons:d.reasons||[]});
-      save(); lastDays=-1; renderAll(); tick(); toast('导入成功');
+      const raw = JSON.parse(r.result), d = normalize(raw);
+      if(!d) throw 0;
+      if(Array.isArray(raw.items)){ S = d; toast('导入成功'); }
+      else { // 旧版戒色备份：替换现有的「戒色」项目，没有就新增
+        const old = d.items[0], i = S.items.findIndex(x=>x.tpl==='nofap');
+        if(i>=0){ old.id = S.items[i].id; old.name = S.items[i].name; old.emoji = S.items[i].emoji; S.items[i] = old; } else S.items.unshift(old);
+        toast('已导入旧版戒色备份');
+      }
+      save(); for(const k in lastDays) delete lastDays[k]; go('home');
     }catch(err){ toast('文件格式不正确'); }
     e.target.value='';
   };
   r.readAsText(f);
 }
 function resetAll(){
-  if(!confirm('确定清空所有数据吗？此操作不可撤销。')) return;
-  localStorage.removeItem(KEY); S = load(); save(); lastDays=-1; renderAll(); tick(); toast('已清空');
+  if(!confirm(A ? '确定清空所有数据吗？\n云端和你所有登录的设备上的数据也会一起删除，无法撤销。' : '确定清空所有数据吗？此操作不可撤销。')) return;
+  localStorage.removeItem(OLDKEY);
+  localStorage.removeItem(KEY+'-draft');
+  S.items = []; S.notes = []; S.sosId = null; save(); $('nInput').value=''; go('home'); toast('已清空');
 }
 
-/* ========== 导航 ========== */
+/* ========== 导航 / 刷新 ========== */
 function go(p){
+  curPage = p;
   document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active', x.id==='p-'+p));
-  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('active', b.dataset.p===p));
-  if(p==='cal') renderCal();
-  if(p==='me') renderBadges();
+  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('active', b.dataset.p===(p==='detail'?'home':p)));
+  renderAll();
   window.scrollTo(0,0);
 }
-function renderAll(){ renderStats(); renderCal(); renderBadges(); renderTasks(); renderUrge(); }
+function renderAll(){
+  renderHome(); renderSos(); renderMe(); renderNotes();
+  if(curPage==='detail') renderDetail();
+}
+const lastDays = {};
+let lastDK = dkey(Date.now());
+function tick(){
+  const now = Date.now();
+  if(dkey(now) !== lastDK){ lastDK = dkey(now); renderAll(); }
+  let changed = false;
+  for(const it of S.items){
+    if(it.type !== 'quit') continue;
+    const days = Math.floor(streakMs(it)/DAY);
+    if(lastDays[it.id] != null && days > lastDays[it.id]){
+      const m = MILESTONES.find(m=>m.d===days);
+      if(m){ toast(`${it.emoji} ${it.name} 解锁勋章 ${m.e} ${m.n}！`); confetti(); }
+      changed = true;
+    }
+    lastDays[it.id] = days;
+  }
+  if(changed) renderAll();
+  document.querySelectorAll('[data-hms]').forEach(el=>{ const it=getItem(el.dataset.hms); if(it) el.textContent = fmtHMS(streakMs(it)); });
+  document.querySelectorAll('[data-days]').forEach(el=>{ const it=getItem(el.dataset.days); if(it) el.textContent = Math.floor(streakMs(it)/DAY); });
+  if(curPage==='detail'){ const it=getItem(detailId); if(it && it.type==='quit') tickRing(it); }
+}
 
 /* 安装提示：iOS Safari 且未以独立模式运行 */
 function hideInstall(){ $('installTip').classList.remove('show'); try{localStorage.setItem(KEY+'-hideInstall','1');}catch(e){} }
 (function(){
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
   const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
-  let hidden=false; try{hidden=localStorage.getItem(KEY+'-hideInstall');}catch(e){}
+  let hidden=false; try{hidden=localStorage.getItem(KEY+'-hideInstall') || localStorage.getItem(OLDKEY+'-hideInstall');}catch(e){}
   if(ios && !standalone && !hidden) $('installTip').classList.add('show');
 })();
 
 /* 彩带 */
 function confetti(){
   const c=$('confetti'), x=c.getContext('2d'), dpr=devicePixelRatio||1;
-  c.width=innerWidth*dpr; c.height=innerHeight*dpr; x.scale(dpr,dpr);
+  c.width=innerWidth*dpr; c.height=innerHeight*dpr; x.setTransform(dpr,0,0,dpr,0,0);
   const cols=['#34d399','#fbbf24','#60a5fa','#f472b6','#a78bfa'];
   const ps=Array.from({length:90},()=>({x:innerWidth/2,y:innerHeight*.35,vx:(Math.random()-.5)*12,vy:Math.random()*-11-3,s:Math.random()*6+4,c:cols[Math.random()*5|0],r:Math.random()*6,vr:(Math.random()-.5)*.4}));
   let f=0;
@@ -616,10 +1627,17 @@ function confetti(){
 }
 
 /* 启动 */
-save(); renderAll(); newSosQuote(); tick();
+const wasMigrated = S.migrated;
+try{ $('nInput').value = localStorage.getItem(KEY+'-draft') || ''; }catch(e){}
+moodRow($('nMoods'), ()=>nMood, v=>nMood=v);
+save(true); renderAll(); tick(); newSosQuote(); nativeSetup();
+if(!A) showAuth(); else setTimeout(doSync, 600);
+if(wasMigrated) setTimeout(()=>toast('已升级：原戒色记录已保留，可添加更多项目 ✨'), 400);
 setInterval(tick, 1000);
-document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ renderAll(); tick(); } });
-if('serviceWorker' in navigator && location.protocol !== 'file:'){
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ renderAll(); tick(); if(A) doSync(); } else syncFlush(); });
+addEventListener('pagehide', ()=>syncFlush());
+addEventListener('online', ()=>{ if(A) doSync(); });
+if('serviceWorker' in navigator && location.protocol !== 'file:' && !isNative()){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 </script>

@@ -1,0 +1,17 @@
+{
+  "name": "zilv-daka",
+  "version": "1.0.0",
+  "private": true,
+  "description": "自律打卡：iOS 用 PWA，安卓用 Capacitor 打包成 APK",
+  "scripts": {
+    "build:www": "node scripts/build-www.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/cli": "8.6.2",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/share": "8.0.3"
+  }
+}
