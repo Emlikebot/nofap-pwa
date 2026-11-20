@@ -71,7 +71,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: android-${{ github.run_number }}
-          name: SUC 安卓版 1.${{ github.run_number }}
+          name: 日期 安卓版 1.${{ github.run_number }}
           body: |
             手机浏览器打开下面的 zilv.apk 下载安装即可（首次安装需允许“安装未知应用”）。
             之后有新版本，App 的「我的」页面会提示更新；直接覆盖安装，数据不会丢。

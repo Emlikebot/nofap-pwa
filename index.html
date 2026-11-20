@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>SUC</title>
-<meta name="description" content="SUC：戒除坏习惯（戒色、戒扣痘痘、戒挖鼻孔…）、纪念日计数、倒计时，一个 App 全搞定。">
+<title>日期</title>
+<meta name="description" content="日期：戒除坏习惯（固本培元、戒扣痘痘、戒挖鼻孔…）、纪念日计数、倒计时，一个 App 全搞定。">
 <meta name="theme-color" content="#0f1115">
 <!-- iOS PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SUC">
+<meta name="apple-mobile-web-app-title" content="日期">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -239,7 +239,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
   <!-- 首页：所有项目 -->
   <section class="page active" id="p-home">
     <div class="row between">
-      <div><h1 style="margin-bottom:2px">SUC</h1><div class="muted" id="todayStr" style="margin:0 2px 6px"></div></div>
+      <div><h1 style="margin-bottom:2px">日期</h1><div class="muted" id="todayStr" style="margin:0 2px 6px"></div></div>
       <div class="row" style="gap:8px"><button class="syncdot" id="syncDot" onclick="go('me')"></button><button class="addbtn" onclick="openAdd()" aria-label="新建">＋</button></div>
     </div>
 
@@ -449,7 +449,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
 <div class="auth" id="auth">
   <div class="auth-box">
     <img src="icons/icon-192.png" alt="" class="auth-logo">
-    <h1 style="text-align:center;margin:10px 0 4px">SUC</h1>
+    <h1 style="text-align:center;margin:10px 0 4px">日期</h1>
     <p class="muted" style="text-align:center;margin:0 0 22px">戒除坏习惯 · 纪念日 · 倒计时 · 碎碎念</p>
     <div class="seg"><button id="tabLogin" class="on" onclick="authTab('login')">登录</button><button id="tabReg" onclick="authTab('reg')">注册</button></div>
     <input type="text" id="aUser" placeholder="用户名" autocomplete="username" autocapitalize="off" spellcheck="false">
@@ -488,7 +488,7 @@ const GENERIC = {
   reasons:['成为一个说到做到的人']
 };
 const QUIT_TPL = [
-  {k:'nofap', name:'戒色', emoji:'🌱',
+  {k:'nofap', name:'固本培元', emoji:'🌱',
    triggers:['无聊','压力大','熬夜','刷手机','孤独','情绪低落','看到刺激内容','其他'],
    tasks:['立刻离开当前房间','用冷水洗脸','做 20 个俯卧撑 / 深蹲','出门散步 10 分钟','给朋友发条消息','把手机放到另一个房间','喝一大杯水','读 5 页书'],
    reasons:['拥有更充沛的精力和专注力','成为一个说到做到的人','把时间留给真正重要的人和事']},
@@ -1218,6 +1218,13 @@ function renderMe(){
   $('meFoot').innerHTML = (isNative() ? `安卓版 1.${APP_BUILD} · ` : '') + '数据先存在本机（离线可用），联网后自动同步到云端。<br>登录同一账号的设备之间会自动同步。';
 }
 
+/* 旧名「戒色」统一改为「固本培元」：作为一次正常修改保存，会同步到云端和所有设备 */
+function renameLegacy(){
+  let ch = false;
+  for(const it of S.items) if(it.tpl === 'nofap' && it.name === '戒色'){ it.name = '固本培元'; ch = true; }
+  if(ch) save();
+}
+
 /* ========== 账号与同步（服务器：你 Google 账号下的 Apps Script，数据存你的 Google Drive） ========== */
 const DEFAULT_SERVER = 'https://script.google.com/macros/s/AKfycbwBlZYouzIW4BVIAoxoJZtRb2nnkqXOdiKXDOVyzwEd4TdVvsiI08AMSeBl1druKfpz/exec';   // 部署好服务器后把网页应用网址填在这里，朋友打开就能直接注册登录
 const SESS_KEY = KEY + '-session', SYNC_KEY = KEY + '-sync', SRV_KEY = KEY + '-server';
@@ -1285,7 +1292,7 @@ function scheduleSync(ms){
 }
 function applyRemote(d){
   const n = normalize(d); if(!n) return;
-  n.sosId = S.sosId; S = n; resetSnap(); persist();
+  n.sosId = S.sosId; S = n; resetSnap(); persist(); renameLegacy();
   for(const k in lastDays) delete lastDays[k];
   renderAll();
 }
@@ -1370,7 +1377,7 @@ async function onLoggedIn(r){
   const hasLocal = S.items.length || S.notes.length;
   let keep = false;
   if(same) keep = true;                                   // 同一个账号重新登录：保留本机数据
-  else if(!Y.owner && hasLocal)                           // 登录前就有的本机数据（比如原来的戒色记录）
+  else if(!Y.owner && hasLocal)                           // 登录前就有的本机数据（比如原来的固本培元记录）
     keep = confirm(`这台设备上已有 ${S.items.length} 个项目、${S.notes.length} 条碎碎念（登录前的数据）。\n\n要把它们合并到账号「${name}」吗？\n选“取消”则丢弃本机数据，只使用云端的。`);
   if(!keep){ S = {v:2, sosId:null, items:[], notes:[], deleted:{}}; resetSnap(); persist(); }
   A = {server:serverUrl(), token:r.token, username:name, admin:!!r.user.admin}; saveJ(SESS_KEY, A);
@@ -1401,7 +1408,7 @@ async function saveServer(){
   $('srvMsg').textContent = '正在连接…';
   try{
     const r = await api('ping', {}, url);
-    if(r.app !== 'zilv') throw new Error('这不是 SUC 的服务器');
+    if(r.app !== 'zilv') throw new Error('这不是「日期」的服务器');
     localStorage.setItem(SRV_KEY, url);
     $('srvMsg').textContent = r.setup ? '✅ 连接成功！还没有管理员：请切到「注册」，用脚本里的 SETUP_CODE 当邀请码注册第一个账号。' : '✅ 连接成功';
     renderSrvHint();
@@ -1454,7 +1461,7 @@ async function newInvite(){
     adminCache = null; loadAdmin();
     showInfo('🎟 新邀请码', `<div style="font-size:30px;font-weight:800;letter-spacing:4px;text-align:center;font-family:ui-monospace,Menlo,monospace;margin:10px 0">${esc(r.invite.code)}</div>
       <p class="muted" style="line-height:1.7">把邀请码和下面的说明发给朋友：<br>iPhone 用 Safari 打开网页版并添加到主屏幕；安卓下载 APK 安装。打开后点「注册」，填用户名、密码和这个邀请码。</p>`,
-      `SUC 邀请码：${r.invite.code}\niPhone：Safari 打开 https://emlikebot.github.io/nofap-pwa/ → 分享 → 添加到主屏幕\n安卓：下载安装 https://github.com/Emlikebot/nofap-pwa/releases/latest/download/zilv.apk\n打开后点「注册」，填用户名、密码和邀请码即可。`);
+      `「日期」邀请码：${r.invite.code}\niPhone：Safari 打开 https://emlikebot.github.io/nofap-pwa/ → 分享 → 添加到主屏幕\n安卓：下载安装 https://github.com/Emlikebot/nofap-pwa/releases/latest/download/zilv.apk\n打开后点「注册」，填用户名、密码和邀请码即可。`);
   }catch(e){ toast('生成失败：' + e.message); }
 }
 async function delInvite(code){
@@ -1533,14 +1540,14 @@ async function exportData(){
   if(isNative()){
     const F = NP('capacitorFilesystemPluginCapacitor'), Sh = NP('capacitorShare');
     try{
-      const r = await F.Filesystem.writeFile({path:`SUC备份-${dkey(Date.now())}.json`, data:JSON.stringify(o,null,2), directory:'CACHE', encoding:'utf8'});
-      await Sh.Share.share({title:'SUC 备份', files:[r.uri]});
+      const r = await F.Filesystem.writeFile({path:`日期备份-${dkey(Date.now())}.json`, data:JSON.stringify(o,null,2), directory:'CACHE', encoding:'utf8'});
+      await Sh.Share.share({title:'日期备份', files:[r.uri]});
     }catch(e){ if(!/cancel/i.test(String(e && e.message || e))) toast('导出失败：' + (e.message || e)); }
     return;
   }
   const blob = new Blob([JSON.stringify(o,null,2)],{type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `SUC备份-${dkey(Date.now())}.json`; document.body.appendChild(a); a.click(); a.remove();
+  a.download = `日期备份-${dkey(Date.now())}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000); toast('备份已导出');
 }
 function importData(e){
@@ -1551,10 +1558,10 @@ function importData(e){
       const raw = JSON.parse(r.result), d = normalize(raw);
       if(!d) throw 0;
       if(Array.isArray(raw.items)){ S = d; toast('导入成功'); }
-      else { // 旧版戒色备份：替换现有的「戒色」项目，没有就新增
+      else { // 旧版备份：替换现有的「固本培元」项目，没有就新增
         const old = d.items[0], i = S.items.findIndex(x=>x.tpl==='nofap');
         if(i>=0){ old.id = S.items[i].id; old.name = S.items[i].name; old.emoji = S.items[i].emoji; S.items[i] = old; } else S.items.unshift(old);
-        toast('已导入旧版戒色备份');
+        toast('已导入旧版固本培元备份');
       }
       save(); for(const k in lastDays) delete lastDays[k]; go('home');
     }catch(err){ toast('文件格式不正确'); }
@@ -1630,9 +1637,9 @@ function confetti(){
 const wasMigrated = S.migrated;
 try{ $('nInput').value = localStorage.getItem(KEY+'-draft') || ''; }catch(e){}
 moodRow($('nMoods'), ()=>nMood, v=>nMood=v);
-save(true); renderAll(); tick(); newSosQuote(); nativeSetup();
+save(true); renameLegacy(); renderAll(); tick(); newSosQuote(); nativeSetup();
 if(!A) showAuth(); else setTimeout(doSync, 600);
-if(wasMigrated) setTimeout(()=>toast('已升级：原戒色记录已保留，可添加更多项目 ✨'), 400);
+if(wasMigrated) setTimeout(()=>toast('已升级：原固本培元记录已保留，可添加更多项目 ✨'), 400);
 setInterval(tick, 1000);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ renderAll(); tick(); if(A) doSync(); } else syncFlush(); });
 addEventListener('pagehide', ()=>syncFlush());

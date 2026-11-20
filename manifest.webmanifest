@@ -1,7 +1,7 @@
 {
-  "name": "SUC",
-  "short_name": "SUC",
-  "description": "SUC：戒除坏习惯、纪念日计数、倒计时。",
+  "name": "日期",
+  "short_name": "日期",
+  "description": "日期：戒除坏习惯、纪念日计数、倒计时。",
   "lang": "zh-CN",
   "start_url": "./",
   "scope": "./",
