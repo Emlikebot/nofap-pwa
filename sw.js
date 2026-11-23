@@ -1,5 +1,5 @@
 // 离线缓存：修改文件后请递增版本号
-const CACHE = 'zilv-v6';
+const CACHE = 'zilv-v7';
 const ASSETS = [
   './',
   './index.html',

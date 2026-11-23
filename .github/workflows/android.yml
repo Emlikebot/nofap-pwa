@@ -47,12 +47,13 @@ jobs:
         run: |
           npx cap add android
           cp -r android-res/* android/app/src/main/res/
+          python3 scripts/patch-android.py
           sed -i "s/versionCode 1$/versionCode $BUILD/; s/versionName \"1.0\"/versionName \"1.$BUILD\"/" android/app/build.gradle
           grep -n "versionCode\|versionName" android/app/build.gradle
 
       - name: 编译
         working-directory: android
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
+        run: ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee ../build.log; exit ${PIPESTATUS[0]}
 
       - name: 签名
         env:
@@ -78,3 +79,13 @@ jobs:
             提交：${{ github.sha }}
           files: zilv.apk
           make_latest: true
+
+      - name: 编译失败时上传日志
+        if: failure()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-log-${{ github.run_number }}
+          name: 编译日志 ${{ github.run_number }}（失败）
+          prerelease: true
+          make_latest: false
+          files: build.log
