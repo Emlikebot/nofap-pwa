@@ -12,6 +12,10 @@
  *
  * 以后改了代码：「部署」→「管理部署」→ 铅笔 → 版本选「新版本」→ 部署（网址不变）
  *
+ * 订阅截图识别（可选）：左侧齿轮「项目设置」→ 最下面「脚本属性」→ 添加
+ *   GEMINI_API_KEY = 你的 Gemini API Key（Google AI Studio 里获取）
+ *   GEMINI_MODEL   = 可不填，默认 gemini-3.5-flash-lite
+ *
  * 数据位置：你 Google Drive 的「自律打卡云端」文件夹，每个账号一个子文件夹，
  *   data.json 为当前数据，data-YYYY-MM-DD.json 为每日快照（保留 30 天）。
  * 账号、密码（加盐哈希）、邀请码存在本脚本的「脚本属性」里。
@@ -21,6 +25,8 @@ const ROOT_FOLDER = '自律打卡云端';
 const KEEP_SNAPSHOTS = 30;
 const TOKEN_DAYS = 365;
 const HASH_ROUNDS = 400;
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+const GEMINI_DEFAULT_MODEL = 'gemini-3.5-flash-lite';
 
 /* ---------------- 入口 ---------------- */
 function doGet() {
@@ -117,6 +123,40 @@ const API = {
     });
   },
 
+  /* 订阅截图识别：返回截图里的订阅（名称、金额、币种、周期、下次扣费日） */
+  'sub.parse': function (b) {
+    auth_(b.token);
+    const imgs = (Array.isArray(b.images) ? b.images : []).slice(0, 6);
+    if (!imgs.length) fail_('没有收到截图');
+    const key = props_().getProperty('GEMINI_API_KEY');
+    if (!key) fail_('服务器还没配置 Gemini API Key（Apps Script「项目设置 → 脚本属性」里添加 GEMINI_API_KEY）', 'nokey');
+    const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    const tz = String(b.today || today);
+    const prompt = '这些是订阅 / 会员 / 自动续费的截图（例如 App Store 或 Google Play 的订阅页、Netflix、Spotify、视频会员、云服务、账单邮件等）。今天是 ' + tz + '。\n' +
+      '找出截图里每一个仍在生效、会自动扣费的订阅，只输出 JSON：\n' +
+      '{"items":[{"name":"服务名称","amount":"金额数字，如 9.99","currency":"币种代码，如 CNY、USD、HKD、EUR、JPY","cycle":"monthly 或 yearly 或 quarterly 或 weekly","next":"下次扣费日期 YYYY-MM-DD"}]}\n' +
+      '规则：只填截图里看得出来的信息，看不出来的填空字符串；「续订日期 / 下次扣费 / 续费日 / renews on / next billing」都算下次扣费日；日期没写年份时，取今天以后最近的那一天；' +
+      '已取消、已过期、不会再扣费的不要；¥ 在中文截图里一般是 CNY；没有任何订阅就返回 {"items":[]}。';
+    const parts = [{ text: prompt }].concat(imgs.map(function (im) {
+      return { inline_data: { mime_type: String(im.mime || 'image/jpeg'), data: String(im.data || '').replace(/^data:[^,]*,/, '') } };
+    }));
+    const r = gemini_(key, parts);
+    if (r.err) fail_('识别失败：' + r.err);
+    let j = null;
+    try { j = JSON.parse(r.text); } catch (e) {
+      const m = String(r.text).match(/\{[\s\S]*\}/);
+      try { j = m ? JSON.parse(m[0]) : null; } catch (e2) {}
+    }
+    if (!j || !Array.isArray(j.items)) fail_('识别结果看不懂，换一张更清楚的截图试试');
+    const items = j.items.map(function (x) {
+      return { name: String(x.name || '').trim().slice(0, 40), amount: String(x.amount || '').replace(/[^\d.]/g, ''),
+        currency: String(x.currency || '').trim().toUpperCase().slice(0, 5),
+        cycle: ['monthly', 'yearly', 'quarterly', 'weekly'].indexOf(x.cycle) >= 0 ? x.cycle : 'monthly',
+        next: /^\d{4}-\d{2}-\d{2}$/.test(String(x.next || '')) ? String(x.next) : '' };
+    }).filter(function (x) { return x.name; });
+    return { items: items };
+  },
+
   /* ---- 管理员 ---- */
   'invite.create': function (b) {
     adminOnly_(b.token);
@@ -160,6 +200,40 @@ const API = {
     });
   }
 };
+
+/* ---------------- Gemini 官方 API ---------------- */
+function gemini_(key, parts) {
+  const model = String(props_().getProperty('GEMINI_MODEL') || GEMINI_DEFAULT_MODEL).trim().replace(/^models\//, '');
+  const think = /^gemini-[12]\./.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: 'minimal' };
+  let r = geminiOnce_(key, model, parts, think);
+  if (r.err && r.code === 400 && /think/i.test(r.err)) r = geminiOnce_(key, model, parts, null);
+  return r;
+}
+function geminiOnce_(key, model, parts, thinking) {
+  const gen = { responseMimeType: 'application/json' };
+  if (thinking) gen.thinkingConfig = thinking;
+  try {
+    const r = UrlFetchApp.fetch(GEMINI_BASE + '/models/' + encodeURIComponent(model) + ':generateContent', {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      headers: { 'x-goog-api-key': key },
+      payload: JSON.stringify({ contents: [{ role: 'user', parts: parts }], generationConfig: gen })
+    });
+    const code = r.getResponseCode(), txt = r.getContentText();
+    let j = null; try { j = JSON.parse(txt); } catch (e) {}
+    if (code !== 200) {
+      let msg = String((j && j.error && j.error.message) || txt).slice(0, 300);
+      if (code === 429 && /prepay|credit|billing/i.test(msg)) msg += '（Google AI Studio 预付模式要先充值一点余额）';
+      return { code: code, err: '（' + code + '）' + msg };
+    }
+    const cand = j && j.candidates && j.candidates[0];
+    const out = cand && cand.content && cand.content.parts
+      ? cand.content.parts.filter(function (p) { return !p.thought; }).map(function (p) { return p.text || ''; }).join('') : '';
+    if (!out) return { code: code, err: '模型没有返回内容（' + ((cand && cand.finishReason) || '未知原因') + '）' };
+    return { text: out };
+  } catch (e) {
+    return { err: String(e && e.message || e).slice(0, 300) };
+  }
+}
 
 /* ---------------- 合并（与 App 内的 mergeData 保持一致） ---------------- */
 function mergeData(a, b) {

@@ -233,6 +233,13 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
 .rt{font-size:16px;line-height:1.4;word-break:break-word}
 .rs{font-size:12px;color:var(--sub);margin-top:3px}
 .rn{font-size:13px;color:var(--sub);margin-top:4px;white-space:pre-wrap;word-break:break-word}
+.subc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.subc.off{opacity:.55}
+.rs.warn{color:var(--warn)} .rs.gold{color:var(--gold)}
+.sel{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:0 10px;font-size:16px;min-height:48px;color:var(--text);-webkit-appearance:none;appearance:none}
+.pick{background:var(--card2);border-radius:14px;padding:12px;margin-bottom:10px}
+.pick.off{opacity:.5}
+.pick input[type=text],.pick input[type=date]{background:var(--card)}
 .tbadge{display:none;position:absolute;top:0;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--warn);color:#fff;font-size:10px;line-height:16px;font-weight:700}
 .due-row{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
 .due-row:last-child{border-bottom:0}
@@ -272,8 +279,11 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
 
   <!-- 提醒事项 -->
   <section class="page" id="p-rem">
-    <div class="row between"><h1>提醒事项</h1><button class="addbtn" onclick="openRemEdit()" aria-label="新提醒">＋</button></div>
+    <div class="row between"><h1 id="remH">提醒事项</h1><button class="addbtn" id="remAdd" onclick="openRemEdit()" aria-label="新提醒">＋</button></div>
+    <div class="seg" style="margin-bottom:6px"><button id="segRem" class="on" onclick="remSeg('rem')">提醒事项</button><button id="segSub" onclick="remSeg('sub')">订阅</button></div>
     <div id="remList"></div>
+    <div id="subList" style="display:none"></div>
+    <input type="file" id="subFile" accept="image/*" multiple hidden onchange="onSubFiles(event)">
   </section>
 
   <!-- 碎碎念 -->
@@ -460,6 +470,21 @@ code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
   <div class="sheet"><div class="grab"></div><div id="remBody"></div></div>
 </div>
 
+<!-- 编辑订阅 -->
+<div class="mask" id="mSub" onclick="if(event.target===this)closeSheet(this)">
+  <div class="sheet"><div class="grab"></div><div id="subBody"></div></div>
+</div>
+
+<!-- 截图识别结果 -->
+<div class="mask" id="mSubPick" onclick="if(event.target===this)closeSheet(this)">
+  <div class="sheet"><div class="grab"></div>
+    <h2>📷 识别到的订阅</h2>
+    <p class="muted" style="margin-top:-4px">核对一下，可以直接改。</p>
+    <div id="subPickBody"></div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="addSubPicks()">添加选中的</button>
+  </div>
+</div>
+
 <!-- 到点提醒 -->
 <div class="mask" id="mDue" onclick="if(event.target===this)dueClose()">
   <div class="sheet"><div class="grab"></div>
@@ -508,7 +533,7 @@ const isNative = () => !!(window.Capacitor && Capacitor.isNativePlatform && Capa
 const KEY = 'zilv-v2';
 const OLDKEY = 'nofap-pwa-v1';           // 旧版（只有戒色）数据，首次打开会自动迁移，旧数据保留不删
 const DAY = 86400000;
-const TYPE_NAME = {quit:'戒除', anniv:'纪念日', countdown:'倒计时', reminder:'提醒'};
+const TYPE_NAME = {quit:'戒除', anniv:'纪念日', countdown:'倒计时', reminder:'提醒', sub:'订阅'};
 const REPEATS_OK = ['none','daily','weekdays','weekly','monthly','yearly'];
 const TYPE_COLOR = {quit:'#34d399', anniv:'#f472b6', countdown:'#60a5fa'};
 const MILESTONES = [
@@ -633,6 +658,7 @@ function fromV1(o){
 }
 function fixItem(it){
   it.pinned = !!it.pinned; it.created = it.created || Date.now(); it.emoji = it.emoji || '⭐'; it.name = it.name || TYPE_NAME[it.type];
+  if(it.type === 'sub'){ it.pinned = false; it.status = it.status === 'cancelled' ? 'cancelled' : 'active'; it.cycle = it.cycle || 'monthly'; it.next = it.next || ''; it.firedDay = it.firedDay || ''; }
   if(it.type === 'reminder'){ it.pinned = false; it.due = it.due || 0; it.repeat = REPEATS_OK.includes(it.repeat) ? it.repeat : 'none'; it.snooze = it.snooze || 0; it.fired = it.fired || 0; it.done = !!it.done; }
   if(it.type === 'quit'){
     if(typeof it.startTime !== 'number') it.startTime = Date.now();
@@ -758,7 +784,7 @@ function renderHome(){
   const d = new Date();
   const quits = S.items.filter(i=>i.type==='quit'), todo = quits.filter(i=>!i.checkins[dkey(d)]).length;
   $('todayStr').textContent = `${d.getMonth()+1}月${d.getDate()}日 周${WEEK[d.getDay()]}` + (quits.length ? (todo ? ` · 还有 ${todo} 项未打卡` : ' · 今日已全部打卡 ✓') : '');
-  if(!S.items.filter(i=>!isRem(i)).length){
+  if(!S.items.filter(i=>!isAux(i)).length){
     $('homeList').innerHTML = `<div class="card empty"><div class="e">✨</div><p class="muted" style="line-height:1.7">还没有项目<br>可以记录要戒掉的习惯、纪念日或倒计时</p><button class="btn btn-primary" onclick="openAdd()">＋ 新建第一个</button></div>`;
     return;
   }
@@ -1144,6 +1170,11 @@ function remTimeText(t){
   return d.getFullYear() === new Date().getFullYear() ? base : `${d.getFullYear()}年${base}`;
 }
 let showDone = false;
+function remSeg(t){
+  $('segRem').classList.toggle('on', t === 'rem'); $('segSub').classList.toggle('on', t === 'sub');
+  $('remList').style.display = t === 'rem' ? 'block' : 'none'; $('subList').style.display = t === 'sub' ? 'block' : 'none';
+  $('remAdd').style.visibility = t === 'rem' ? 'visible' : 'hidden';
+}
 function remRow(r){
   const now = Date.now(), over = !r.done && r.due && trigAt(r) <= now;
   const meta = [];
@@ -1249,7 +1280,7 @@ function deleteRem(){
 /* ---- 到点（App 开着时） ---- */
 const dueQueue = [];
 function checkDue(){
-  const now = Date.now(); let hit = false;
+  const now = Date.now(); let hit = checkSubDue();
   for(const r of reminders()){
     if(r.done || !r.due) continue;
     const t = trigAt(r);
@@ -1262,9 +1293,9 @@ function checkDue(){
   if(hit){ save(); renderAll(); showDue(); }
 }
 function showDue(){
-  const list = dueQueue.map(getItem).filter(r => r && !r.done);
-  if(!list.length){ closeSheet($('mDue')); return; }
-  $('dueBody').innerHTML = list.map(r => `<div class="due-row"><div style="flex:1;min-width:0"><b>${esc(r.name)}</b>
+  const list = dueQueue.map(getItem).filter(r => r && !r.done), subRows = subDueRows();
+  if(!list.length && !subRows){ closeSheet($('mDue')); return; }
+  $('dueBody').innerHTML = subRows + list.map(r => `<div class="due-row"><div style="flex:1;min-width:0"><b>${esc(r.name)}</b>
       <div class="muted">${remTimeText(r.due)}${r.note ? ' · ' + esc(r.note) : ''}</div></div>
       <div class="row" style="gap:6px;flex:none"><button class="btn btn-ghost btn-sm" onclick="snoozeRem('${r.id}')">稍后 10 分钟</button>
       <button class="btn btn-primary btn-sm" onclick="dueDone('${r.id}')">完成</button></div></div>`).join('');
@@ -1277,10 +1308,11 @@ function snoozeRem(id){
   r.snooze = Date.now() + 10 * 60000; dueForget(id);
   save(); renderAll(); toast(`${hm(r.snooze)} 再提醒你`); showDue();
 }
-function dueClose(){ dueQueue.length = 0; closeSheet($('mDue')); }
-function desktopNotify(r){
+function dueClose(){ dueQueue.length = 0; subDueQueue.length = 0; closeSheet($('mDue')); }
+function desktopNotify(r){ desktopNotifyRaw(r.id, '⏰ ' + r.name, r.note || remTimeText(r.due), !!r.alarm); }
+function desktopNotifyRaw(tag, title, body, sticky){
   if(isNative() || isIOS() || !('Notification' in window) || Notification.permission !== 'granted') return;
-  try{ const n = new Notification('⏰ ' + r.name, {body: r.note || remTimeText(r.due), tag: r.id, requireInteraction: !!r.alarm, icon: 'icons/icon-192.png'}); n.onclick = () => { focus(); go('rem'); n.close(); }; }catch(e){}
+  try{ const n = new Notification(title, {body, tag, requireInteraction: !!sticky, icon: 'icons/icon-192.png'}); n.onclick = () => { focus(); go('rem'); n.close(); }; }catch(e){}
 }
 async function askNotifyPermission(alarm){
   if(isNative()){
@@ -1316,8 +1348,227 @@ function scheduleNativeRems(){
     const P = remPlugin(); if(!P) return;
     const items = reminders().filter(r => !r.done && r.due).map(r => ({
       nid: nidOf(r.id), at: trigAt(r), title: r.name, body: r.note || remTimeText(r.due), alarm: !!r.alarm }));
+    for(const s of subs()) for(const o of subOccurrences(s))
+      items.push({nid: nidOf(s.id + ':' + o.day), at: o.at, title: subTitle(s, o.k), body: subBody(s), alarm: o.k <= 3});
     P.setAll({items}).catch(()=>{});
   }, 400);
+}
+
+/* ========== 订阅扣费提醒 ==========
+   每个订阅存成 type:'sub' 的项目，随账号同步。扣费前第 7–4 天每天 9:00 通知，前 3 天每天 9:00 闹钟式强提醒，扣费当天不提醒。
+   勾「已付款」自动顺延到下一期；勾「已取消」不再提醒。 */
+const SUB_CYCLES = {monthly:'每月', quarterly:'每季', yearly:'每年', weekly:'每周'};
+const SUB_HOUR = 9;
+const CURRENCIES = ['CNY','USD','HKD','EUR','JPY','GBP','TWD','SGD'];
+const CUR_SIGN = {CNY:'¥', USD:'$', HKD:'HK$', EUR:'€', JPY:'¥', GBP:'£', TWD:'NT$', SGD:'S$'};
+const isSub = x => x.type === 'sub';
+const subs = () => S.items.filter(isSub);
+const isAux = x => isRem(x) || isSub(x);       // 不在首页项目列表里显示的
+function newSub(){ return {id:uid(), type:'sub', name:'', amount:'', currency:'CNY', cycle:'monthly', next:'', status:'active', lastPaid:'', firedDay:'', created:Date.now()}; }
+const subMoney = s => s.amount ? `${CUR_SIGN[s.currency] || (s.currency ? s.currency + ' ' : '')}${s.amount}` : '';
+function subAdvance(dateStr, cycle, anchor){
+  const d = parseD(dateStr), base = anchor || d.getDate();   // anchor：原本的扣费日（如每月 31 号），二月过后回到月底
+  let y = d.getFullYear(), m = d.getMonth();
+  if(cycle === 'weekly') return dkey(addDays(d, 7));
+  m += cycle === 'yearly' ? 12 : cycle === 'quarterly' ? 3 : 1;
+  y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+  return dkey(new Date(y, m, Math.min(base, new Date(y, m+1, 0).getDate())));
+}
+const subDaysLeft = s => s.next ? daysBetween(Date.now(), parseD(s.next)) : null;
+/* 这一期要提醒的时间点：扣费前第 7…1 天的 9:00，最后 3 天是闹钟 */
+function subOccurrences(s){
+  if(s.status !== 'active' || !s.next) return [];
+  const D = parseD(s.next), out = [];
+  for(let k = 7; k >= 1; k--){
+    const at = new Date(D.getFullYear(), D.getMonth(), D.getDate() - k, SUB_HOUR, 0).getTime();
+    out.push({k, at, day: dkey(at)});
+  }
+  return out;
+}
+function subTitle(s, k){ return `💳 ${s.name} ${k === 1 ? '明天' : k + ' 天后'}扣费`; }
+function subBody(s){ const D = parseD(s.next); return [subMoney(s), `${D.getMonth()+1}月${D.getDate()}日扣费`, '已付款或已取消请在「日期」里勾选'].filter(Boolean).join(' · '); }
+
+function subCard(s){
+  const left = subDaysLeft(s), D = s.next ? parseD(s.next) : null;
+  let when = '', cls = '';
+  if(s.status === 'cancelled') when = '已取消';
+  else if(!D) when = '还没设扣费日期';
+  else if(left < 0){ when = `扣费日 ${D.getMonth()+1}月${D.getDate()}日已过，确认一下是付了还是取消了`; cls = 'warn'; }
+  else if(left === 0){ when = '今天扣费'; cls = 'warn'; }
+  else { when = `${D.getMonth()+1}月${D.getDate()}日扣费 · 还有 ${left} 天`; cls = left <= 3 ? 'warn' : left <= 7 ? 'gold' : ''; }
+  const meta = [subMoney(s), SUB_CYCLES[s.cycle]].filter(Boolean).join(' / ');
+  return `<div class="subc${s.status === 'cancelled' ? ' off' : ''}">
+    <div class="rb" onclick="openSubEdit('${s.id}')"><div class="row between"><b class="rt">${esc(s.name)}</b><span class="muted">${esc(meta)}</span></div>
+      <div class="rs ${cls}">${esc(when)}</div>${s.lastPaid ? `<div class="rs">上次付款 ${esc(s.lastPaid.slice(5).replace('-','月'))}日</div>` : ''}</div>
+    ${s.status === 'active' && s.next ? `<div class="row" style="gap:8px;margin-top:10px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="subCancel('${s.id}')">已取消</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="subPaid('${s.id}')">已付款</button></div>` : ''}</div>`;
+}
+let showCancelled = false;
+function renderSubs(){
+  if(!$('subList')) return;
+  const list = subs(), act = list.filter(s => s.status === 'active').sort((a,b) => (a.next || '9999') < (b.next || '9999') ? -1 : 1);
+  const off = list.filter(s => s.status !== 'active');
+  let h = `<div class="row" style="gap:10px;margin-bottom:6px">
+      <button class="btn btn-primary" style="flex:1" onclick="$('subFile').click()">📷 上传订阅截图</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="openSubEdit()">＋ 手动添加</button></div>
+    <p class="hint" style="margin:4px 2px 0">扣费前第 7–4 天每天 9:00 通知，最后 3 天每天 9:00 闹钟强提醒。</p>`;
+  if(act.length) h += `<div class="sec">订阅中（${act.length}）</div>` + act.map(subCard).join('');
+  else h += `<div class="card empty" style="margin-top:14px"><div class="e">💳</div><p class="muted" style="line-height:1.7">还没有订阅<br>上传 App Store、会员页或账单截图，自动识别扣费日期</p></div>`;
+  if(off.length){
+    h += `<button class="sec" style="display:block;width:100%;text-align:left" onclick="showCancelled=!showCancelled;renderSubs()">${showCancelled ? '▾' : '▸'} 已取消（${off.length}）</button>`;
+    if(showCancelled) h += off.map(subCard).join('');
+  }
+  $('subList').innerHTML = h;
+}
+function subPaid(id){
+  const s = getItem(id); if(!s || !s.next) return;
+  const left = subDaysLeft(s);
+  if(left > 7 && !confirm(`离「${s.name}」扣费还有 ${left} 天，确定这一期已经付过了？会顺延到下一期。`)) return;
+  s.lastPaid = s.next;
+  const anchor = s.anchor || parseD(s.next).getDate();
+  let n = subAdvance(s.next, s.cycle, anchor), guard = 0;
+  while(daysBetween(Date.now(), parseD(n)) < 1 && ++guard < 500) n = subAdvance(n, s.cycle, anchor);
+  s.next = n; s.firedDay = '';
+  subDueForget(id); save(); renderAll(); showDue();
+  const D = parseD(n); toast(`已付款，下次扣费 ${D.getMonth()+1}月${D.getDate()}日`);
+}
+function subCancel(id){
+  const s = getItem(id); if(!s) return;
+  if(!confirm(`「${s.name}」已经取消订阅了？之后不再提醒。`)) return;
+  s.status = 'cancelled'; subDueForget(id); save(); renderAll(); showDue(); toast('已标记取消，不再提醒');
+}
+
+/* ---- 编辑 ---- */
+let subDraft = null;
+function openSubEdit(id){
+  const s = id ? getItem(id) : null;
+  subDraft = s ? JSON.parse(JSON.stringify(s)) : newSub(); subDraft._new = !s;
+  const d = subDraft;
+  $('subBody').innerHTML = `<h2>${d._new ? '添加订阅' : '编辑订阅'}</h2>
+    <input type="text" id="sName" value="${esc(d.name)}" placeholder="名称，如 Netflix、iCloud+" maxlength="40">
+    <div class="row" style="gap:10px;margin-top:10px">
+      <input type="text" id="sAmount" value="${esc(d.amount)}" placeholder="金额（可不填）" inputmode="decimal" style="flex:1">
+      <select id="sCur" class="sel">${[...new Set([...CURRENCIES, d.currency].filter(Boolean))].map(c => `<option${c === d.currency ? ' selected' : ''}>${c}</option>`).join('')}</select>
+    </div>
+    <label class="l">扣费周期</label>
+    <div class="chips" id="sCycle">${Object.entries(SUB_CYCLES).map(([k,v]) => `<button class="chip${d.cycle === k ? ' on' : ''}" data-k="${k}">${v}</button>`).join('')}</div>
+    <label class="l">下次扣费日期</label>
+    <input type="date" id="sNext" value="${esc(d.next)}">
+    <button class="btn btn-primary" style="margin-top:16px" onclick="saveSub()">${d._new ? '添加' : '保存'}</button>
+    ${d._new ? '' : d.status === 'active' ? '' : `<button class="btn btn-ghost" style="margin-top:10px" onclick="subRestore()">恢复订阅（重新开始提醒）</button>`}
+    ${d._new ? '' : `<button class="btn btn-danger" style="margin-top:10px" onclick="deleteSub()">删除</button>`}`;
+  [...$('sCycle').children].forEach(b => b.onclick = () => [...$('sCycle').children].forEach(x => x.classList.toggle('on', x === b)));
+  openSheet('mSub');
+}
+async function saveSub(){
+  const d = subDraft, name = $('sName').value.trim(), next = $('sNext').value;
+  if(!name){ toast('请填写名称'); return; }
+  if(!next){ toast('请选择下次扣费日期'); return; }
+  if(next !== d.next){ d.firedDay = ''; d.anchor = parseD(next).getDate(); }
+  d.name = name; d.amount = $('sAmount').value.trim().replace(/[^\d.]/g, ''); d.currency = $('sCur').value;
+  d.cycle = ($('sCycle').querySelector('.on') || {}).dataset?.k || 'monthly'; d.next = next;
+  const isNew = d._new; delete d._new;
+  if(isNew) S.items.push(d); else { const i = S.items.findIndex(x => x.id === d.id); if(i >= 0) S.items[i] = d; }
+  save(); closeSheet($('mSub')); renderAll(); toast(isNew ? '已添加订阅' : '已保存');
+  subDraft = null;
+  if(isNew) await askNotifyPermission(true);
+}
+function subRestore(){ const s = getItem(subDraft.id); if(!s) return; s.status = 'active'; s.firedDay = ''; save(); closeSheet($('mSub')); renderAll(); toast('已恢复，会按扣费日提醒'); }
+function deleteSub(){
+  if(!confirm(`删除订阅「${subDraft.name}」？`)) return;
+  S.items = S.items.filter(x => x.id !== subDraft.id); subDraft = null;
+  save(); closeSheet($('mSub')); renderAll(); toast('已删除');
+}
+
+/* ---- 截图识别 ---- */
+function shrinkImage(file){
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 1600, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      res({mime:'image/jpeg', data:c.toDataURL('image/jpeg', 0.85).split(',')[1]});
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('图片读不出来')); };
+    img.src = url;
+  });
+}
+let subPicks = [];
+async function onSubFiles(e){
+  const files = [...e.target.files].slice(0, 6); e.target.value = '';
+  if(!files.length) return;
+  if(!A){ toast('请先登录'); return; }
+  toast('正在识别截图…');
+  try{
+    const images = await Promise.all(files.map(shrinkImage));
+    const r = await api('sub.parse', {token:A.token, images, today:dkey(Date.now())});
+    if(!r.items.length){ toast('截图里没找到订阅，换一张试试'); return; }
+    subPicks = r.items.map(x => {
+      const ex = subs().find(s => s.name.toLowerCase() === x.name.toLowerCase());
+      return Object.assign({on:true, exist: ex ? ex.id : ''}, x, {name: ex ? ex.name : x.name, currency: x.currency || (ex && ex.currency) || 'CNY'});
+    });
+    renderSubPicks(); openSheet('mSubPick');
+  }catch(err){
+    toast(err.message === '未知操作' ? '服务器还没更新，暂时不能识别截图' : err.code === 'net' ? '识别截图需要联网' : err.message);
+  }
+}
+function renderSubPicks(){
+  $('subPickBody').innerHTML = subPicks.map((x, i) => `<div class="pick${x.on ? '' : ' off'}">
+    <div class="row between"><label class="row" style="gap:8px"><input type="checkbox" ${x.on ? 'checked' : ''} onchange="subPicks[${i}].on=this.checked;renderSubPicks()"><b>${x.exist ? '更新' : '添加'}</b></label>
+      ${x.exist ? '<span class="tag">已有同名订阅，会更新它</span>' : ''}</div>
+    <input type="text" value="${esc(x.name)}" oninput="subPicks[${i}].name=this.value" style="margin-top:8px">
+    <div class="row" style="gap:8px;margin-top:8px">
+      <input type="text" value="${esc(x.amount)}" placeholder="金额" inputmode="decimal" oninput="subPicks[${i}].amount=this.value" style="flex:1">
+      <select class="sel" onchange="subPicks[${i}].currency=this.value">${[...new Set([...CURRENCIES, x.currency].filter(Boolean))].map(c => `<option${c === x.currency ? ' selected' : ''}>${c}</option>`).join('')}</select>
+      <select class="sel" onchange="subPicks[${i}].cycle=this.value">${Object.entries(SUB_CYCLES).map(([k,v]) => `<option value="${k}"${k === x.cycle ? ' selected' : ''}>${v}</option>`).join('')}</select>
+    </div>
+    <input type="date" value="${esc(x.next)}" oninput="subPicks[${i}].next=this.value" style="margin-top:8px">
+    ${x.next ? '' : '<div class="hint" style="color:var(--warn)">截图里没看到扣费日期，请手动选一下</div>'}</div>`).join('');
+}
+async function addSubPicks(){
+  const sel = subPicks.filter(x => x.on);
+  if(!sel.length){ closeSheet($('mSubPick')); return; }
+  if(sel.some(x => !x.name.trim() || !x.next)){ toast('勾选的订阅要有名称和扣费日期'); return; }
+  let added = 0, updated = 0;
+  for(const x of sel){
+    const ex = x.exist && getItem(x.exist);
+    const t = ex || newSub();
+    if(t.next !== x.next){ t.firedDay = ''; t.anchor = parseD(x.next).getDate(); }
+    Object.assign(t, {name: x.name.trim(), amount:String(x.amount || '').replace(/[^\d.]/g, ''), currency:x.currency || 'CNY', cycle:x.cycle, next:x.next, status:'active'});
+    if(ex) updated++; else { S.items.push(t); added++; }
+  }
+  save(); closeSheet($('mSubPick')); renderAll();
+  toast([added ? `添加 ${added} 个` : '', updated ? `更新 ${updated} 个` : ''].filter(Boolean).join('，') + '订阅');
+  await askNotifyPermission(true);
+}
+
+/* ---- 到点（App 开着时）：当天 9:00 后打开 App 弹一次 ---- */
+const subDueQueue = [];
+function subDueForget(id){ const i = subDueQueue.indexOf(id); if(i >= 0) subDueQueue.splice(i, 1); }
+function checkSubDue(){
+  const now = Date.now(), today = dkey(now); let hit = false;
+  if(new Date(now).getHours() < SUB_HOUR) return false;
+  for(const s of subs()){
+    if(s.status !== 'active' || !s.next || s.firedDay === today) continue;
+    const left = subDaysLeft(s);
+    if(left >= 1 && left <= 7){
+      s.firedDay = today; hit = true;
+      if(!subDueQueue.includes(s.id)) subDueQueue.push(s.id);
+      desktopNotifyRaw(s.id, subTitle(s, left), subBody(s), left <= 3);
+    }
+  }
+  return hit;
+}
+function subDueRows(){
+  return subDueQueue.map(getItem).filter(s => s && s.status === 'active').map(s => {
+    const left = subDaysLeft(s);
+    return `<div class="due-row"><div style="flex:1;min-width:0"><b>${esc(subTitle(s, left))}</b>
+      <div class="muted">${esc([subMoney(s), s.next.slice(5).replace('-','月') + '日扣费'].filter(Boolean).join(' · '))}</div></div>
+      <div class="row" style="gap:6px;flex:none"><button class="btn btn-ghost btn-sm" onclick="subCancel('${s.id}')">已取消</button>
+      <button class="btn btn-primary btn-sm" onclick="subPaid('${s.id}')">已付款</button></div></div>`;
+  }).join('');
 }
 
 /* ========== 碎碎念 ========== */
@@ -1335,7 +1586,7 @@ function moodRow(el, get, set){
   [...el.children].forEach((b,i)=>b.onclick=()=>{ set(get()===NMOODS[i]?null:NMOODS[i]); moodRow(el,get,set); });
 }
 function linkRow(el, get, set){
-  const list = sortItems(S.items.filter(i=>!isRem(i)));
+  const list = sortItems(S.items.filter(i=>!isAux(i)));
   el.innerHTML = list.length ? list.map(i=>`<button class="chip${get()===i.id?' on':''}">${esc(i.emoji+' '+i.name)}</button>`).join('')
     : '<span class="muted" style="padding:6px 2px">还没有项目可以关联</span>';
   [...el.querySelectorAll('.chip')].forEach((b,k)=>b.onclick=()=>{ set(get()===list[k].id?null:list[k].id); linkRow(el,get,set); });
@@ -1832,7 +2083,7 @@ function go(p){
   window.scrollTo(0,0);
 }
 function renderAll(){
-  renderHome(); renderSos(); renderMe(); renderNotes(); renderRems(); scheduleNativeRems();
+  renderHome(); renderSos(); renderMe(); renderNotes(); renderRems(); renderSubs(); scheduleNativeRems();
   if(curPage==='detail') renderDetail();
 }
 const lastDays = {};
