@@ -946,6 +946,7 @@ function cdDetail(it){
     <div class="days" style="color:var(--c);margin:14px 0 10px">${big}</div>
     <div class="muted">${fmtYMD(d.target)}（周${WEEK[d.target.getDay()]}）${it.yearly?' · 每年重复':''}</div>
   </div>
+  ${cdRemButton(it, d)}
   ${d.left >= 0 ? `<div class="grid3" style="margin-bottom:14px">
     <div class="stat s"><b>${Math.floor(d.left/7)} 周 ${d.left%7} 天</b><span>约合</span></div>
     <div class="stat s"><b>${hours}</b><span>小时</span></div>
@@ -956,6 +957,24 @@ function cdDetail(it){
     <div class="row between muted"><span>${it.yearly?'上一次':'创建于'} ${fmtYMD(d.from)}</span><span>${(d.progress*100).toFixed(1)}%</span></div>
   </div>` : ''}
   ${relatedNotesCard(it)}`;
+}
+
+/* 倒计时一键添加到提醒：目标日 9:00，每年重复的倒计时提醒也每年重复 */
+const cdRem = it => reminders().find(r => r.from === it.id && !r.done);
+function cdRemButton(it, d){
+  const r = cdRem(it);
+  if(r){ const t = new Date(trigAt(r)); return `<button class="btn btn-ghost" style="margin-bottom:14px" onclick="openRemEdit('${r.id}')">✓ 已在提醒里 · ${t.getMonth()+1}月${t.getDate()}日 ${hm(t)}</button>`; }
+  if(d.left < 0) return '';
+  return `<button class="btn btn-ghost" style="margin-bottom:14px" onclick="cdToRem('${it.id}')">⏰ 添加到提醒</button>`;
+}
+function cdToRem(id){
+  const it = getItem(id); if(!it || cdRem(it)) return;
+  const t = cdInfo(it).target;
+  const r = Object.assign(newReminder(), {name: it.name, from: it.id,
+    due: new Date(t.getFullYear(), t.getMonth(), t.getDate(), SUB_HOUR, 0).getTime(), repeat: it.yearly ? 'yearly' : 'none'});
+  S.items.push(r); save(); renderAll();
+  toast(`已添加到提醒：${remTimeText(r.due)}`);
+  askNotifyPermission(false);
 }
 
 /* ========== 新建 / 编辑 ========== */
